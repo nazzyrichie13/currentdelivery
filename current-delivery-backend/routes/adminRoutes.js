@@ -42,5 +42,49 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 });
+// Admin sets shipment ON HOLD
+router.patch('/:id/hold', authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const { reason } = req.body;
+
+    const shipment = await Shipment.findById(req.params.id);
+    if (!shipment) {
+      return res.status(404).json({ error: 'Shipment not found' });
+    }
+
+    shipment.status = 'on_hold';
+
+    shipment.history.push({
+      status: 'on_hold',
+      timestamp: new Date(),
+      reason
+    });
+
+    await shipment.save();
+
+    res.json({
+      message: 'Shipment placed on hold',
+      shipment
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Admin resumes shipment
+router.patch('/:id/resume', authMiddleware, isAdmin, async (req, res) => {
+  const { status = 'in_transit' } = req.body;
+
+  const shipment = await Shipment.findById(req.params.id);
+  shipment.status = status;
+
+  shipment.history.push({
+    status,
+    timestamp: new Date()
+  });
+
+  await shipment.save();
+  res.json(shipment);
+});
+
 
 export default router;

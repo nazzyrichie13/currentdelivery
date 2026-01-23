@@ -1,7 +1,7 @@
 
 
 // server.js
-require('dotenv').config(); // Fixed missing dotenv import
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
@@ -43,8 +43,8 @@ app.use('/api/invoice', require('./routes/invoice'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
-// Catch-all route to serve React SPA
-app.get('*', (req, res) => {
+// Catch-all route for React SPA (must be AFTER API routes)
+app.get('/:path(.*)', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
