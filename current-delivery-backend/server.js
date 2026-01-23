@@ -21,7 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/invoices', express.static(path.join(__dirname, process.env.INVOICES_DIR || 'invoice')));
 app.use('/upload', express.static(path.join(__dirname, process.env.UPLOADS_DIR || 'upload')));
 
-
+app.get('/', (req, res) => {
+  res.send('Hello! Your server is running ✅');
+});
 // Connect MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected ✅'))
