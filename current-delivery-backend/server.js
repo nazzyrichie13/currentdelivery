@@ -16,7 +16,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+});
 // Static folders for invoices and uploads
 app.use('/invoices', express.static(path.join(__dirname, process.env.INVOICES_DIR || 'invoice')));
 app.use('/upload', express.static(path.join(__dirname, process.env.UPLOADS_DIR || 'upload')));
