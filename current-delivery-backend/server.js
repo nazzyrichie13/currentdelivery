@@ -1,14 +1,13 @@
 
 
 // server.js
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); // Load .env
 const express = require('express');
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const path = require('path');
 const http = require('http');
 const cors = require('cors');
-const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -19,24 +18,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static React files
-app.use(express.static(path.join(__dirname, 'current-delivery-frontend', 'dist')));
+// Paths
+const FRONTEND_DIST = path.join(__dirname, 'current-delivery-frontend', 'dist');
+const INVOICES_DIR = path.join(__dirname, process.env.INVOICES_DIR || 'invoice');
+const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || 'upload');
 
-// Static folders for invoices and uploads
-app.use('/invoices', express.static(path.join(__dirname, process.env.INVOICES_DIR || 'invoice')));
-app.use('/upload', express.static(path.join(__dirname, process.env.UPLOADS_DIR || 'upload')));
+// Serve static folders
+app.use(express.static(FRONTEND_DIST));
+app.use('/invoices', express.static(INVOICES_DIR));
+app.use('/upload', express.static(UPLOADS_DIR));
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.send('Hello! Your server is running ✅');
-});
+// MongoDB connection (optional, won't block frontend)
+mongoose.connect(process.env.MONGO_URI || '', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected ✅'))
+.catch(err => console.warn('MongoDB connection failed ❌', err.message));
 
-// Connect MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected ✅'))
-  .catch(err => console.error('MongoDB error ❌', err));
-
-// API Routes
+// API routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/shipment', require('./routes/shipment'));
 app.use('/api/track', require('./routes/tracking'));
@@ -44,27 +44,17 @@ app.use('/api/invoice', require('./routes/invoice'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
-// Universal React catch-all (works on all environments)
-const reactIndex = path.join(__dirname, 'current-delivery-frontend', 'dist', 'index.html');
-app.use((req, res, next) => {
+// React catch-all for SPA (always send index.html)
+app.get('*', (req, res) => {
   // Skip API and static folders
-  if (
-    req.path.startsWith('/api') ||
-    req.path.startsWith('/invoices') ||
-    req.path.startsWith('/upload')
-  ) {
-    return next();
+  if (req.path.startsWith('/api') || req.path.startsWith('/invoices') || req.path.startsWith('/upload')) {
+    return res.status(404).send('Not found');
   }
 
-  // Serve React SPA
-  if (fs.existsSync(reactIndex)) {
-    return res.sendFile(reactIndex);
-  } else {
-    return res.status(404).send('index.html not found');
-  }
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
 
-// Socket.IO for chat + tracking
+// Socket.IO
 io.on('connection', (socket) => {
   console.log('Socket connected', socket.id);
 
@@ -98,5 +88,5 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
