@@ -54,6 +54,7 @@ return (
 <Route path="/admin/shipments/edit/:id" element={<PrivateRoute admin><EditShipment/></PrivateRoute>} />
 
 </Routes>
+
 <Footer/>
 </div>
 );
