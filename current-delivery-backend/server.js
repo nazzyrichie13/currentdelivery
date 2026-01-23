@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static React files
-app.use(express.static(path.join(__dirname, 'current-delivery-frontend', 'build')));
+app.use(express.static(path.join(__dirname, 'current-delivery-frontend', 'dist')));
 
 // Static folders for invoices and uploads
 app.use('/invoices', express.static(path.join(__dirname, process.env.INVOICES_DIR || 'invoice')));
@@ -45,7 +45,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
 // Universal React catch-all (works on all environments)
-const reactIndex = path.join(__dirname, 'current-delivery-frontend', 'build', 'index.html');
+const reactIndex = path.join(__dirname, 'current-delivery-frontend', 'dist', 'index.html');
 app.use((req, res, next) => {
   // Skip API and static folders
   if (
