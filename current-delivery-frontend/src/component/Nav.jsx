@@ -96,7 +96,7 @@ export default function Nav({ admin = false }) {
             FAQ
           </Link>
           <Link to="/blog" onClick={() => setIsOpen(false)}>
-            Blog
+            Blog 
           </Link>
           {!admin && (
             <Link
