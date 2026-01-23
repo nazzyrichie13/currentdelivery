@@ -18,9 +18,12 @@ const io = new Server(server, { cors: { origin: '*' } });
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.get('/__test', (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+});
 
 // Serve static React files
-app.use(express.static(path.join(__dirname, 'current-delivery-frontend', 'dist')));
+app.use(express.static(path.join(__dirname, '../current-delivery-frontend', 'dist')));
 
 // Static folders for invoices and uploads
 app.use('/invoices', express.static(path.join(__dirname, process.env.INVOICES_DIR || 'invoice')));
@@ -45,7 +48,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
 // Universal React catch-all (works on all environments)
-const FRONTEND_DIST = path.join(__dirname, 'current-delivery-frontend', 'dist');
+const FRONTEND_DIST = path.join(__dirname, '../current-delivery-frontend', 'dist');
 const INVOICES_DIR = path.join(__dirname, process.env.INVOICES_DIR || 'invoice');
 const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || 'upload');
 
