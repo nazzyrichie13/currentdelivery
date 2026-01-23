@@ -47,10 +47,9 @@ app.use('/api/email', require('./routes/email'));
 /* =======================
    REACT FALLBACK (LAST)
 ======================= */
-app.get('*', (req, res) => {
-  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
-});
-
+app.use((req, res, next) => { 
+   if ( req.path.startsWith('/api') || req.path.startsWith('/invoices') || req.path.startsWith('/upload') )
+   { return next(); } res.sendFile(path.join(FRONTEND_DIST, 'index.html')); });
 /* =======================
    DATABASE
 ======================= */
