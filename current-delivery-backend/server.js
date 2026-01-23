@@ -54,14 +54,19 @@ app.use(express.static(FRONTEND_DIST));
 app.use('/invoices', express.static(INVOICES_DIR));
 app.use('/upload', express.static(UPLOADS_DIR));
 
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
   // Skip API and static folders
-  if (req.path.startsWith('/api') || req.path.startsWith('/invoices') || req.path.startsWith('/upload')) {
-    return res.status(404).send('Not found');
+  if (
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/invoices') ||
+    req.path.startsWith('/upload')
+  ) {
+    return next();
   }
 
   res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
+
 
   
 
