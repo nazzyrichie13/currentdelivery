@@ -8,6 +8,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 const http = require('http');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -43,9 +44,24 @@ app.use('/api/invoice', require('./routes/invoice'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
-// Catch-all route for React SPA (must be AFTER API routes)
-app.get('/:path(.*)', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+// Universal React catch-all (works on all environments)
+const reactIndex = path.join(__dirname, 'frontend', 'build', 'index.html');
+app.use((req, res, next) => {
+  // Skip API and static folders
+  if (
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/invoices') ||
+    req.path.startsWith('/upload')
+  ) {
+    return next();
+  }
+
+  // Serve React SPA
+  if (fs.existsSync(reactIndex)) {
+    return res.sendFile(reactIndex);
+  } else {
+    return res.status(404).send('index.html not found');
+  }
 });
 
 // Socket.IO for chat + tracking
@@ -57,7 +73,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat_message', async (msg) => {
-    // msg: { room, shipmentId, senderId, senderName, text }
     const Chat = require('./models/Chat');
     const message = await Chat.create({
       chatId: msg.room,
@@ -69,7 +84,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('location_update', async (payload) => {
-    // payload: { trackingCode, coords, status }
     const Shipment = require('./models/Shipment');
     const s = await Shipment.findOneAndUpdate(
       { trackingCode: payload.trackingCode },
