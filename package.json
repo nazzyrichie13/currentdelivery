@@ -6,14 +6,17 @@
     "current-delivery-backend"
   ],
   "scripts": {
-    "start:frontend": "cd current-delivery-frontend && npm install && npm run build && npx serve -s build",
-    "start:backend": "cd current-delivery-backend && npm install && npm start",
-    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
-    "build:frontend": "cd current-delivery-frontend && npm install && npm run build",
-    "build:backend": "cd current-delivery-backend && npm install && npm run build"
+    "build:frontend": "npm run build --workspace=current-delivery-frontend",
+    "build:backend": "npm run build --workspace=current-delivery-backend",
+
+    "start:frontend": "npx serve -s current-delivery-frontend/dist",
+    "start:backend": "npm run start --workspace=current-delivery-backend",
+
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
     "serve": "^14.2.0"
   }
 }
+
