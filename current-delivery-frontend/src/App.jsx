@@ -34,7 +34,7 @@ return (
 <home/>
 <Routes>
 <Route path="/" element={<Home />} />
-<Route path="/signup" element={<Signup />} />
+<Route path="/register" element={<Signup />} />
 <Route path="/login" element={<Login />} />
 <Route path="/track" element={<TrackShipment />} />
 <Route path="/shipment/:trackingCode" element={<ShipmentDetails />} />
@@ -47,7 +47,7 @@ return (
 <Route path="/vehicle-delivery" element={<VehicleDelivery />} />
 <Route path="/home-delivery" element={<HomeDelivery />} />
 
-<Route path="/admin/login" element={<AdminSignup />} />
+<Route path="/signup" element={<AdminSignup />} />
 <Route path="/admin" element={<PrivateRoute admin><AdminDashboard/></PrivateRoute>} />
 <Route path="/admin/create-shipment" element={<PrivateRoute admin><CreateShipment/></PrivateRoute>} />
 <Route path="/admin/shipments" element={<PrivateRoute admin><ShipmentsList/></PrivateRoute>} />

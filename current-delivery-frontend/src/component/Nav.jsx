@@ -75,7 +75,7 @@ export default function Nav({ admin = false }) {
             Login
           </Link>
         )}
-        <Link to="/admin/login" className="text-amber-600 font-bold">
+        <Link to="/signup" className="text-amber-600 font-bold">
           Admin
         </Link>
       </div>
@@ -127,7 +127,7 @@ export default function Nav({ admin = false }) {
             </Link>
           )}
           <Link
-            to="/admin/login"
+            to="/signup"
             onClick={() => setIsOpen(false)}
             className="text-amber-600 font-bold"
           >

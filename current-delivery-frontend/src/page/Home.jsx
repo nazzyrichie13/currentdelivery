@@ -33,7 +33,7 @@ return(
            We ship from the USA to countries worldwide, and from other countries to the USA.
         </h2>
         <p className=" text-blue-600 w-60">Reliable and Affordable Shipping Services To Give You the Peace  Of mind You Deserve</p>
-        <Link to={'/signup'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
+        <Link to={'/register'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
     </div>
 
 
@@ -86,7 +86,7 @@ return(
   </div>
 
   <Link
-    to="/signup"
+    to="/register"
     className="bg-blue-600 text-white p-3 rounded-md font-extrabold w-full sm:w-44 text-center mt-4"
   >
     Sign Up Today
@@ -125,7 +125,7 @@ return(
 
             </div>
         </div>
-        <Link to={'/signup'} className="bg-white text-blue-600 p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
+        <Link to={'/register'} className="bg-white text-blue-600 p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
         <img src={ship} alt="img" className="w-dvh mix-blend-multiply z-auto"/>
     </div>
     <div  className="bg-blue-950">
@@ -166,7 +166,7 @@ return(
     <div className="flex flex-col items-center p-10 gap-10">
         <img src={photo3} alt="photo"/>
         <p className="font-semibold  w-60  md:w-96 text-2xl">Ship, Send, & Receive With Confidence</p>
-          <Link to={'/signup'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
+          <Link to={'/register'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
             
         
 
