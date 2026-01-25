@@ -14,7 +14,11 @@
 
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
+<<<<<<< HEAD
    "dependencies": {
+=======
+  "dependencies": {
+>>>>>>> 9598d177303b9497fc5d441d4cdd0b71c1a8b376
     "concurrently": "^8.2.0",
     "serve": "^14.2.0"
   }
