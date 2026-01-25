@@ -23,7 +23,7 @@ const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || 'upload');
 /* =======================
    MIDDLEWARE
 ======================= */
-app.use(cors());
+app.use(cors({ origin: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
