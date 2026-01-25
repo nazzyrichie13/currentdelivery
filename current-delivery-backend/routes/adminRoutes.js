@@ -6,7 +6,7 @@ import Admin from "../models/Admin.js";
 const router = express.Router();
 
 // Admin Signup
-router.post("/signup", async (req, res) => {
+router.post("admin/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
