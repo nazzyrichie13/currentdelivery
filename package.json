@@ -8,16 +8,13 @@
   "scripts": {
     "build:frontend": "npm run build --workspace=current-delivery-frontend",
     "build:backend": "npm run build --workspace=current-delivery-backend",
-
     "start:frontend": "npx serve -s current-delivery-frontend/dist",
     "start:backend": "npm run start --workspace=current-delivery-backend",
-
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
-
-    "concurrently": "^8.2.0",
-    "serve": "^14.2.0"
+  "concurrently": "^8.2.0",
+  "serve": "^14.2.0",
+  "dependencies": {
+    "concurrently": "^9.2.1"
   }
-
-
-
+}
