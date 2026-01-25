@@ -14,7 +14,7 @@
 
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
   },
-  "devDependencies": {
+   "dependencies": {
     "concurrently": "^8.2.0",
     "serve": "^14.2.0"
   }
