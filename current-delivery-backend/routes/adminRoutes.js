@@ -1,8 +1,8 @@
 const express = require('express');
+const Admin = require("../model/Admin");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const Admin = require("../model/Admin");
 
 const router = express.Router();
 
@@ -88,4 +88,4 @@ router.patch('/:id/resume', authMiddleware, isAdmin, async (req, res) => {
 });
 
 
-export default router;
+module.exports = router;
