@@ -1,5 +1,7 @@
 import { useState } from "react";
-import API from "../../api"; // axios instance
+import API from "../../api"; 
+import { Link } from "react-router-dom";
+// axios instance
 
 export default function AdminSignup() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -53,6 +55,8 @@ export default function AdminSignup() {
           Create Admin
         </button>
       </form>
+      <Link to={'/admin/login'} className="bg-green-950 text-white  p-3 rounded-md font-extrabold w-full sm:w-44 text-center mt-4"
+        >Admin Sign In</Link>
     </div>
   );
 }

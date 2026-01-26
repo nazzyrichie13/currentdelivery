@@ -21,6 +21,7 @@ import SeaFreight from './page/SeaFreight';
 import VehicleDelivery from './page/VehicleDelivery';
 import HomeDelivery from './page/HomeDelivery';
 import Signup from './page/Signup';
+import AdminLogin from './page/admin/AdminLogin';
 
 
 
@@ -49,6 +50,7 @@ return (
 <Route path="/home-delivery" element={<HomeDelivery />} />
 
 <Route path="/signup" element={<AdminSignup />} />
+<Route path="/admin/login" element={<AdminLogin />} />
 <Route path="/admin" element={<PrivateRoute admin><AdminDashboard/></PrivateRoute>} />
 <Route path="/admin/create-shipment" element={<PrivateRoute admin><CreateShipment/></PrivateRoute>} />
 <Route path="/admin/shipments" element={<PrivateRoute admin><ShipmentsList/></PrivateRoute>} />

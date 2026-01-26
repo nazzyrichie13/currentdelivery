@@ -1,5 +1,4 @@
 
-import Nav from "../component/Nav";
 
 // Example images (replace with your own)
 import containerShip from "../assets/istockphoto-1340887693-612x612.jpg";
@@ -9,8 +8,7 @@ import cargoLoading from "../assets/shipppp.png";
 export default function Seafreight() {
   return (
     <div>
-      <Nav />
-
+      
       {/* Hero Section */}
       <div className="relative h-64 sm:h-96 w-full overflow-hidden">
         <img
