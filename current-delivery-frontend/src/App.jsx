@@ -21,6 +21,7 @@ import SeaFreight from './page/SeaFreight';
 import VehicleDelivery from './page/VehicleDelivery';
 import HomeDelivery from './page/HomeDelivery';
 import Signup from './page/Signup';
+import Test from '../src/Test'
 
 
 
@@ -34,6 +35,7 @@ return (
 <home/>
 <Routes>
 <Route path="/" element={<Home />} />
+<Route path="/test" element={<Test />}/>
 <Route path="/register" element={<Signup />} />
 <Route path="/login" element={<Login />} />
 <Route path="/track" element={<TrackShipment />} />
