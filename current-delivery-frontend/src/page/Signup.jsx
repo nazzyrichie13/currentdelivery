@@ -21,7 +21,7 @@ export default function Signup() {
     }
 
     try {
-      const res = await API.post("/register", { name, email, password, role });
+      const res = await API.post("/auth/register", { name, email, password, role });
       // save token in localStorage
       localStorage.setItem("token", res.data.token);
       setSuccess(`Signup successful! Welcome ${res.data.user.name}`);
