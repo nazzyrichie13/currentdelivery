@@ -10,7 +10,8 @@ export default function AdminSignup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await API.post("/admin/signup", form);
+      
+      const res = await API.post("/api/admin/signup", form);
       alert(res.data.msg);
     } catch (err) {
       alert(err.response?.data?.msg || "Error creating admin");

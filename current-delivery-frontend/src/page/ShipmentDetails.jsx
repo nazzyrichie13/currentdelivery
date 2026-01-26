@@ -8,7 +8,7 @@ import Nav from '../component/Nav';
 import ChatBox from '../component/ChatBox';
 import Barcode from 'react-barcode';
 
-const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:4000');
+const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000'); // match backend port
 
 function getShipmentProgress(status) {
   const map = {
@@ -37,7 +37,7 @@ function RescheduleSection({ shipment, setShipment }) {
     setMsg('');
 
     try {
-      const res = await API.post(`/shipments/${shipment._id}/reschedule-request`, { requestedDate: date, reason });
+      const res = await API.post(`/api/shipment/${shipment._id}/reschedule-request`, { requestedDate: date, reason });
       setShipment(prev => ({
         ...prev,
         rescheduleRequests: [...(prev.rescheduleRequests || []), res.data.request]
@@ -55,9 +55,7 @@ function RescheduleSection({ shipment, setShipment }) {
   return (
     <div className="mt-6 p-4 border rounded">
       <h3 className="font-semibold mb-2 text-base sm:text-lg">Reschedule Delivery</h3>
-
       {hasPending && <p className="text-yellow-600 text-sm">You already have a pending reschedule request.</p>}
-
       {!hasPending && (
         <form onSubmit={submit} className="space-y-2">
           <input type="date" required value={date} onChange={e => setDate(e.target.value)} className="border p-2 w-full rounded" />
@@ -67,19 +65,6 @@ function RescheduleSection({ shipment, setShipment }) {
           </button>
           {msg && <p className="text-sm mt-1">{msg}</p>}
         </form>
-      )}
-
-      {shipment.rescheduleRequests?.length > 0 && (
-        <div className="mt-4 text-sm">
-          <h4 className="font-semibold mb-1">Requests</h4>
-          {shipment.rescheduleRequests.map(r => (
-            <div key={r._id} className="border-l-4 pl-2 mb-2">
-              <p>Requested: {new Date(r.requestedDate).toDateString()}</p>
-              <p>Status: <b>{r.status}</b></p>
-              {r.adminNote && <p>Note: {r.adminNote}</p>}
-            </div>
-          ))}
-        </div>
       )}
     </div>
   );
@@ -105,16 +90,8 @@ function ShipmentProgress({ status }) {
         <span className="font-medium">Delivery Progress</span>
         <span className="text-gray-600">{progress}%</span>
       </div>
-
       <div className="w-full bg-gray-200 rounded-full h-3">
         <div className={`${barColor} h-3 rounded-full transition-all duration-500`} style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="flex justify-between text-xs text-gray-500 mt-2">
-        <span>Pending</span>
-        <span>In Transit</span>
-        <span>Out for Delivery</span>
-        <span>Delivered</span>
       </div>
     </div>
   );
@@ -125,10 +102,27 @@ export default function ShipmentDetails() {
   const [shipment, setShipment] = useState(null);
 
   useEffect(() => {
-    API.get(`/track/${trackingCode}`).then(r => setShipment(r.data)).catch(() => {});
+    let mounted = true;
+
+    // ✅ Fetch shipment
+    API.get(`/api/track/${trackingCode}`)
+      .then(res => {
+        if (!mounted) return;
+        setShipment(res.data.shipment || res.data);
+      })
+      .catch(() => {});
+
+    // ✅ Join socket room
     socket.emit('join_room', { room: `tracking_${trackingCode}` });
-    socket.on('location_update', data => setShipment(prev => ({ ...prev, location: data.location })));
-    return () => socket.off('location_update');
+    socket.on('location_update', data => {
+      setShipment(prev => prev ? { ...prev, location: data.location } : prev);
+    });
+
+    // ✅ Cleanup socket on unmount
+    return () => {
+      mounted = false;
+      socket.off('location_update');
+    };
   }, [trackingCode]);
 
   if (!shipment) return <div className="p-6 text-center">Loading...</div>;
@@ -137,33 +131,19 @@ export default function ShipmentDetails() {
     <div>
       <Nav />
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
-
-        {/* Barcode with scanning effect */}
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
           <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">Tracking Code</h3>
-          <div className="relative">
-            <Barcode
-              value={shipment.trackingCode}
-              format="CODE128"
-              width={1.5}
-              height={60}
-              displayValue={true}
-              background="#f9f9f9"
-              lineColor="#111"
-            />
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-blue-500 opacity-70 animate-scan"></div>
-          </div>
+          <Barcode value={shipment.trackingCode} format="CODE128" width={1.5} height={60} displayValue background="#f9f9f9" lineColor="#111" />
         </div>
 
         <h2 className="text-lg sm:text-xl font-bold">Shipment {shipment.trackingCode}</h2>
         <p>Status: <strong>{shipment.status}</strong></p>
 
-        {/* Progress bar */}
         <ShipmentProgress status={shipment.status} />
 
         {shipment.status === 'on_hold' && (
           <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">
-            🚧 Shipment is currently on hold. It will resume once cleared.
+            🚧 Shipment is currently on hold.
           </div>
         )}
 
@@ -171,30 +151,21 @@ export default function ShipmentDetails() {
           <div>
             <h4 className="font-semibold text-sm sm:text-base">Sender</h4>
             <p>{shipment.sender.name}</p>
-
             <h4 className="font-semibold mt-3 text-sm sm:text-base">Recipient</h4>
             <p>{shipment.recipient.name}</p>
-
             <h4 className="font-semibold mt-3 text-sm sm:text-base">Package</h4>
             <p>{shipment.package.description}</p>
             <p>Price: ${shipment.price}</p>
           </div>
-
           <div className="h-64 sm:h-80 md:h-96">
             {shipment.location?.coords ? (
-              <MapContainer
-                center={[shipment.location.coords.lat, shipment.location.coords.lng]}
-                zoom={13}
-                className="leaflet-container w-full h-full rounded"
-              >
+              <MapContainer center={[shipment.location.coords.lat, shipment.location.coords.lng]} zoom={13} className="leaflet-container w-full h-full rounded">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
                   <Popup>{shipment.status}</Popup>
                 </Marker>
               </MapContainer>
-            ) : (
-              <div className="p-4 text-sm text-gray-500">No location yet</div>
-            )}
+            ) : <div className="p-4 text-sm text-gray-500">No location yet</div>}
           </div>
         </div>
 

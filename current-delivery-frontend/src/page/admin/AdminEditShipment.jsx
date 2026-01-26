@@ -16,15 +16,16 @@ export default function EditShipment() {
   useEffect(() => {
     async function loadShipment() {
       try {
-        const res = await API.get(`/shipments/${id}`);
-        const s = res.data.shipment || res.data; // depending on backend
+        // ✅ Updated path to match backend
+        const res = await API.get(`/api/shipment/${id}`);
+        const s = res.data.shipment || res.data; // handle both cases
 
         setShipment(s);
         setStatus(s.status || '');
         setLat(s.location?.coords?.lat || '');
         setLng(s.location?.coords?.lng || '');
       } catch (err) {
-        setMsg('Failed to load shipment',err);
+        setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
       }
     }
 
@@ -45,7 +46,8 @@ export default function EditShipment() {
         }
       };
 
-      const res = await API.put(`/shipments/${id}`, payload);
+      // ✅ Updated path to match backend
+      const res = await API.put(`/api/shipment/${id}`, payload);
       setShipment(res.data);
       setMsg('Shipment updated successfully');
     } catch (err) {
@@ -62,7 +64,6 @@ export default function EditShipment() {
         <h2 className="text-xl font-bold mb-4">Edit Shipment Status & Location</h2>
 
         <form onSubmit={submit} className="space-y-4">
-
           <div>
             <label className="font-semibold">Status</label>
             <select
