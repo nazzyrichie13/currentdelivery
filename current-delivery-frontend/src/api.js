@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // Relative baseURL ensures it works in both dev and prod
 const API = axios.create({
-  baseURL: '/' // all requests are relative
+  baseURL: import.meta.env.VITE_API_URL
 });
+
 
 // Add token to Authorization header if exists
 API.interceptors.request.use(config => {
