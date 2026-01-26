@@ -2,9 +2,9 @@
 import Nav from "../component/Nav";
 
 // Example images (replace with your own)
-import containerShip from "../assets/container-ship.jpg";
-import port from "../assets/port.jpg";
-import cargoLoading from "../assets/cargo-loading.jpg";
+import containerShip from "../assets/istockphoto-1340887693-612x612.jpg";
+import port from "../assets/ship.jpg";
+import cargoLoading from "../assets/shipppp.png";
 
 export default function Seafreight() {
   return (
