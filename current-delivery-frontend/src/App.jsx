@@ -52,13 +52,7 @@ return (
 <Route path="/signup" element={<AdminSignup />} />
 <Route path="/admin/login" element={<AdminLogin />} />
 <Route
-  path="/admin"
-  element={
-    <PrivateRoute admin>
-      <AdminDashboard />
-    </PrivateRoute>
-  }
-/>
+  path="/admin" element={  <AdminDashboard />}/>
 
 <Route path="/admin/create-shipment" element={<PrivateRoute admin><CreateShipment/></PrivateRoute>} />
 <Route path="/admin/shipments" element={<PrivateRoute admin><ShipmentsList/></PrivateRoute>} />
