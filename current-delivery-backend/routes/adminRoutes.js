@@ -1,7 +1,8 @@
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import Admin from "../models/Admin.js";
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const Admin = require("../model/Admin");
 
 const router = express.Router();
 
