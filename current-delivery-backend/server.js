@@ -13,6 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
+
 /* =======================
    PATHS (DEFINE FIRST)
 ======================= */
@@ -23,9 +24,13 @@ const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || 'upload');
 /* =======================
    MIDDLEWARE
 ======================= */
-app.use(cors({ origin: false }));
+
+
+app.use(cors({ origin: '*' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 /* =======================
    STATIC FILES
@@ -37,6 +42,8 @@ app.use('/upload', express.static(UPLOADS_DIR));
 /* =======================
    API ROUTES
 ======================= */
+// At the top, after other routes
+
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use('/api/auth/login',require('./routes/auth'));
 app.use('/api/auth', require('./routes/auth'));
@@ -58,6 +65,11 @@ app.use((req, res, next) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected ✅'))
   .catch(err => console.error('MongoDB error ❌', err));
+
+
+  
+   
+
 
 /* =======================
    SOCKET.IO
