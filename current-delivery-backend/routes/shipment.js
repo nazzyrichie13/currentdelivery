@@ -1,75 +1,73 @@
-const express2 = require('express');
-const router2 = express2.Router();
+const express = require('express');
+const router = express.Router();
 const multer = require('multer');
-const fs2 = require('fs');
-const path2 = require('path');
+const fs = require('fs');
+const path = require('path');
 const Shipment = require('../model/Shipment');
 const Invoice = require('../model/Invoice');
-const User = require('../model/User');
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 const { generateInvoicePDF } = require('../utilis/pdf');
+const sendInvoiceEmail = require('./email').sendInvoiceEmail;
 
+// Set up uploads directory
+const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-const UP2 = process.env.UPLOADS_DIR || 'uploads';
-if (!fs2.existsSync(UP2)) fs2.mkdirSync(UP2, { recursive: true });
-const storage2 = multer.diskStorage({ destination: (req, file, cb) => cb(null, UP2), filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname) });
-const upload2 = multer({ storage: storage2 });
+// Multer storage for single file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+});
+const upload = multer({ storage });
 
-
-// Admin creates shipment -> generate invoice + email
-router2.post(
+// ====================
+// CREATE SHIPMENT
+// POST /api/shipment
+// ====================
+router.post(
   '/',
   authMiddleware,
   isAdmin,
-  upload2.single('packageImage'), // handles single file upload
+  upload.single('packageImage'),
   async (req, res) => {
     try {
-      const body = req.body;
+      const { sender, recipient, description, weight, price } = req.body;
 
-      // Parse sender & recipient JSON
-      const sender = JSON.parse(body.sender);
-      const recipient = JSON.parse(body.recipient);
+      // Parse sender & recipient JSON if sent as strings
+      const senderData = typeof sender === 'string' ? JSON.parse(sender) : sender;
+      const recipientData = typeof recipient === 'string' ? JSON.parse(recipient) : recipient;
 
-      // Handle uploaded image
       const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-
-      // Generate unique tracking code
       const trackingCode = 'CD' + Date.now().toString(36).toUpperCase();
 
-      // Convert numeric fields safely
-      const weight = parseFloat(body.weight) || 0;
-      const price = parseFloat(body.price) || 0;
-
-      // Create shipment record
       const shipment = await Shipment.create({
         trackingCode,
-        sender,
-        recipient,
-        package: { description: body.description, weight, imageUrl },
-        price,
+        sender: senderData,
+        recipient: recipientData,
+        package: { description, weight: parseFloat(weight) || 0, imageUrl },
+        price: parseFloat(price) || 0,
         status: 'created',
-        createdBy: req.user._id,
+        createdBy: req.user._id
       });
 
-      // Create invoice
+      // Generate invoice PDF
       const invoiceNumber = 'INV-' + Date.now();
       const { filePath, pdfUrl } = await generateInvoicePDF({ shipment, invoiceNumber });
+
       const invoice = await Invoice.create({
         shipmentId: shipment._id,
         invoiceNumber,
-        pdfUrl,
+        pdfUrl
       });
 
-      // Link invoice to shipment
       shipment.invoiceId = invoice._id;
       await shipment.save();
 
-      // Send invoice email (optional)
-      const sendEmail = require('./email').sendInvoiceEmail;
+      // Send invoice email
       try {
-        await sendEmail(
-          recipient.email,
+        await sendInvoiceEmail(
+          recipientData.email,
           `Your shipment ${shipment.trackingCode}`,
           `Your invoice is ready.`,
           [{ filename: `${invoiceNumber}.pdf`, path: filePath }]
@@ -78,7 +76,7 @@ router2.post(
         console.warn('Email sending failed:', e.message);
       }
 
-      res.json({ shipment, invoice });
+      res.status(201).json({ shipment, invoice });
     } catch (err) {
       console.error('Shipment creation error:', err);
       res.status(500).json({ error: err.message });
@@ -86,33 +84,50 @@ router2.post(
   }
 );
 
-
-// Admin edit shipment
-router2.put('/:id', authMiddleware, isAdmin, async (req, res) => {
-try {
-const updated = await Shipment.findByIdAndUpdate(req.params.id, req.body, { new: true });
-res.json(updated);
-} catch (e) { res.status(500).json({ error: e.message }); }
+// ====================
+// EDIT SHIPMENT
+// PUT /api/shipment/:id
+// ====================
+router.put('/:id', authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const updated = await Shipment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-
-// Admin list shipments
-router2.get('/', authMiddleware, isAdmin, async (req, res) => {
-const q = {};
-const shipments = await Shipment.find(q).sort({ createdAt: -1 }).limit(200);
-res.json(shipments);
+// ====================
+// LIST SHIPMENTS
+// GET /api/shipment
+// ====================
+router.get('/', authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const shipments = await Shipment.find({}).sort({ createdAt: -1 }).limit(200);
+    res.json(shipments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-
-// Get single shipment (admin)
-router2.get('/:id', authMiddleware, async (req, res) => {
-const s = await Shipment.findById(req.params.id).populate('invoiceId');
-res.json(s);
+// ====================
+// GET SINGLE SHIPMENT
+// GET /api/shipment/:id
+// ====================
+router.get('/:id', authMiddleware, async (req, res) => {
+  try {
+    const shipment = await Shipment.findById(req.params.id).populate('invoiceId');
+    res.json(shipment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
-  
 
-// Admin approve or reject user reschedule request
-router2.patch('/:shipmentId/reschedule-request/:requestId', authMiddleware, isAdmin, async (req, res) => {
+// ====================
+// RESCHEDULE REQUEST APPROVAL/REJECTION
+// PATCH /api/shipment/:shipmentId/reschedule-request/:requestId
+// ====================
+router.patch('/:shipmentId/reschedule-request/:requestId', authMiddleware, isAdmin, async (req, res) => {
   try {
     const { action, adminNote } = req.body; // approve | reject
 
@@ -133,7 +148,6 @@ router2.patch('/:shipmentId/reschedule-request/:requestId', authMiddleware, isAd
         reason: request.reason,
         rescheduledBy: req.user._id
       });
-
       shipment.deliveryDate = request.requestedDate;
       shipment.status = 'rescheduled';
       request.status = 'approved';
@@ -144,14 +158,10 @@ router2.patch('/:shipmentId/reschedule-request/:requestId', authMiddleware, isAd
 
     await shipment.save();
 
-    res.json({
-      message: `Request ${request.status}`,
-      shipment
-    });
+    res.json({ message: `Request ${request.status}`, shipment });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
-module.exports = router2;
+module.exports = router;

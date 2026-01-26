@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../model/admin');
-const Shipment = require('../model/Shipment'); // Make sure you have this model
+const Shipment = require('../model/Shipment');
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 
@@ -11,24 +11,22 @@ const router = express.Router();
 
 // =======================
 // Admin Signup
+// POST /api/admin/signup
 // =======================
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if admin exists
     const existing = await Admin.findOne({ email });
     if (existing) return res.status(400).json({ msg: "Admin already exists" });
 
-    // Hash password
     const hashed = await bcrypt.hash(password, 10);
 
-    // Create admin with role
     const admin = await Admin.create({
       name,
       email,
       password: hashed,
-      role: "admin" // default role
+      role: "admin"
     });
 
     res.status(201).json({ msg: "Admin created successfully", admin });
@@ -39,6 +37,7 @@ router.post("/signup", async (req, res) => {
 
 // =======================
 // Admin Login
+// POST /api/admin/login
 // =======================
 router.post("/login", async (req, res) => {
   try {
@@ -63,6 +62,7 @@ router.post("/login", async (req, res) => {
 
 // =======================
 // Admin sets shipment ON HOLD
+// PATCH /api/admin/:id/hold
 // =======================
 router.patch('/:id/hold', authMiddleware, isAdmin, async (req, res) => {
   try {
@@ -88,6 +88,7 @@ router.patch('/:id/hold', authMiddleware, isAdmin, async (req, res) => {
 
 // =======================
 // Admin resumes shipment
+// PATCH /api/admin/:id/resume
 // =======================
 router.patch('/:id/resume', authMiddleware, isAdmin, async (req, res) => {
   try {
