@@ -1,26 +1,35 @@
+// routes/adminRoutes.js
 const express = require('express');
-const Admin = require("../model/admin");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const isAdmin = require('../middleware/auth');
-const  authMiddleware = require('../middleware/auth');
-
+const Admin = require('../model/admin');
+const Shipment = require('../model/shipment'); // Make sure you have this model
+const authMiddleware = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 
 const router = express.Router();
 
+// =======================
 // Admin Signup
+// =======================
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // check if admin exists
+    // Check if admin exists
     const existing = await Admin.findOne({ email });
     if (existing) return res.status(400).json({ msg: "Admin already exists" });
 
-    // hash password
+    // Hash password
     const hashed = await bcrypt.hash(password, 10);
 
-    const admin = await Admin.create({ name, email, password: hashed });
+    // Create admin with role
+    const admin = await Admin.create({
+      name,
+      email,
+      password: hashed,
+      role: "admin" // default role
+    });
 
     res.status(201).json({ msg: "Admin created successfully", admin });
   } catch (err) {
@@ -28,7 +37,9 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+// =======================
 // Admin Login
+// =======================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -38,25 +49,29 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign(
+      { id: admin._id, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     res.json({ token, admin });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
+
+// =======================
 // Admin sets shipment ON HOLD
+// =======================
 router.patch('/:id/hold', authMiddleware, isAdmin, async (req, res) => {
   try {
     const { reason } = req.body;
-
     const shipment = await Shipment.findById(req.params.id);
-    if (!shipment) {
-      return res.status(404).json({ error: 'Shipment not found' });
-    }
+
+    if (!shipment) return res.status(404).json({ msg: "Shipment not found" });
 
     shipment.status = 'on_hold';
-
     shipment.history.push({
       status: 'on_hold',
       timestamp: new Date(),
@@ -65,29 +80,33 @@ router.patch('/:id/hold', authMiddleware, isAdmin, async (req, res) => {
 
     await shipment.save();
 
-    res.json({
-      message: 'Shipment placed on hold',
-      shipment
-    });
+    res.json({ msg: "Shipment placed on hold", shipment });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ msg: err.message });
   }
 });
+
+// =======================
 // Admin resumes shipment
+// =======================
 router.patch('/:id/resume', authMiddleware, isAdmin, async (req, res) => {
-  const { status = 'in_transit' } = req.body;
+  try {
+    const { status = 'in_transit' } = req.body;
+    const shipment = await Shipment.findById(req.params.id);
 
-  const shipment = await Shipment.findById(req.params.id);
-  shipment.status = status;
+    if (!shipment) return res.status(404).json({ msg: "Shipment not found" });
 
-  shipment.history.push({
-    status,
-    timestamp: new Date()
-  });
+    shipment.status = status;
+    shipment.history.push({
+      status,
+      timestamp: new Date()
+    });
 
-  await shipment.save();
-  res.json(shipment);
+    await shipment.save();
+    res.json({ msg: "Shipment resumed", shipment });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
 });
-
 
 module.exports = router;
