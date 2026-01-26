@@ -6,7 +6,8 @@ const path2 = require('path');
 const Shipment = require('../model/Shipment');
 const Invoice = require('../model/Invoice');
 const User = require('../model/User');
-const { authMiddleware, isAdmin } = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 const { generateInvoicePDF } = require('../utilis/pdf');
 
 
