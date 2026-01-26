@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../model/admin');
-const Shipment = require('../model/shipment'); // Make sure you have this model
+const Shipment = require('../model/Shipment'); // Make sure you have this model
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 
