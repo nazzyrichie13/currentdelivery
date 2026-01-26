@@ -37,7 +37,7 @@ app.use('/upload', express.static(UPLOADS_DIR));
 /* =======================
    API ROUTES
 ======================= */
-app.use("/api/admin", require("./routes/adminRoute"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 app.use('/api/auth/login',require('./routes/auth'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/shipment', require('./routes/shipment'));
