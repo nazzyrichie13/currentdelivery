@@ -13,12 +13,21 @@ const router = express.Router();
 // Admin Signup
 // POST /api/admin/signup
 // =======================
+// =======================
+// Admin Signup (ONLY ONE ADMIN)
+// POST /api/admin/signup
+// =======================
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const existing = await Admin.findOne({ email });
-    if (existing) return res.status(400).json({ msg: "Admin already exists" });
+    // 🔴 Check if ANY admin already exists
+    const adminExists = await Admin.findOne({ role: "admin" });
+    if (adminExists) {
+      return res.status(403).json({
+        msg: "Admin already exists. Only one admin is allowed."
+      });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
 
@@ -29,11 +38,15 @@ router.post("/signup", async (req, res) => {
       role: "admin"
     });
 
-    res.status(201).json({ msg: "Admin created successfully", admin });
+    res.status(201).json({
+      msg: "Admin created successfully",
+      admin
+    });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
+
 
 // =======================
 // Admin Login
