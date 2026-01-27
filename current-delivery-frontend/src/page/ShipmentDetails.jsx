@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 
 import ChatBox from '../component/ChatBox';
 import Barcode from 'react-barcode';
-
+import { Link } from 'react-router-dom';
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 function getShipmentProgress(status) {
@@ -174,6 +174,7 @@ export default function ShipmentDetails() {
         <div className="mt-6">
           <h3 className=" bg-green-500 text-white font-semibold text-base sm:text-lg">Chat</h3>
           <ChatBox room={`shipment_${shipment._id}`}  />
+          <Link to={'/reschudle'}>Do you want to reschdule delivery Date click here</Link>
         </div>
       </div>
     </div>

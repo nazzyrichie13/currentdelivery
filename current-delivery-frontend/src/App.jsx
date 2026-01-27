@@ -23,6 +23,7 @@ import HomeDelivery from './page/HomeDelivery';
 import Signup from './page/Signup';
 import AdminLogin from './page/admin/AdminLogin';
 import EditByTrackingCode from './page/admin/EditByTrackingCode';
+import RescheduleByTracking from './page/RescheduleByTracking';
 
 
 
@@ -54,6 +55,8 @@ return (
 <Route path="/signup" element={<AdminSignup />} />
 <Route path="/admin/login" element={<AdminLogin />} />
 <Route path="/admin" element={  <AdminDashboard />}/>
+<Route path="/reschdule" element={  <RescheduleByTracking />}/>
+
 
 <Route path="/admin/create-shipment" element={<CreateShipment/>} />
 <Route path="/admin/shipments" element={<ShipmentsList/>} />
