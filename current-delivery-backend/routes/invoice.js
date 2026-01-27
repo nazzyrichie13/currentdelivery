@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const Invoice = require('../models/Invoice');
-const Shipment = require('../models/Shipment');
+const Invoice = require('../model/Invoice');
+const Shipment = require('../model/Shipment');
 const PDFDocument = require('pdfkit');
 
 router.get('/download/:trackingCode', async (req, res) => {
