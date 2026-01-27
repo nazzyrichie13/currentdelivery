@@ -3,14 +3,20 @@ const { Schema, model: m } = require('mongoose');
 /**
  * Stores approved reschedule history (admin-approved only)
  */
-const RescheduleHistorySchema = new Schema({
-  oldDate: Date,
-  newDate: Date,
+const rescheduleRequestSchema = new mongoose.Schema({
+  requestedDate: Date,
   reason: String,
-  rescheduledBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  rescheduledAt: { type: Date, default: Date.now }
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  adminNote: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
-
 /**
  * Stores user-initiated reschedule requests (pending approval)
  */
@@ -93,11 +99,16 @@ const ShipmentSchema = new Schema({
   ],
 
   // 🔁 Admin-approved reschedule log
-  reschedules: [RescheduleHistorySchema],
+  rescheduleRequests: [rescheduleRequestSchema],
 
-  // 📨 User-initiated reschedule requests
-  rescheduleRequests: [RescheduleRequestSchema],
-
+  reschedules: [
+    {
+      oldDate: Date,
+      newDate: Date,
+      reason: String,
+      rescheduledBy: mongoose.Schema.Types.ObjectId
+    }
+  ],
   invoiceId: {
     type: Schema.Types.ObjectId,
     ref: 'Invoice'

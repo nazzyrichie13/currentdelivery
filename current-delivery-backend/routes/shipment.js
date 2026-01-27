@@ -193,14 +193,17 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PATCH /api/shipment/:shipmentId/reschedule-request/:requestId
 // ====================
 router.patch(
-  '/:shipmentId/reschedule-request/:requestId',
+  '/track/:trackingCode/reschedule-request/:requestId',
   authMiddleware,
   isAdmin,
   async (req, res) => {
     try {
       const { action, adminNote } = req.body;
 
-      const shipment = await Shipment.findById(req.params.shipmentId);
+      const shipment = await Shipment.findOne({
+        trackingCode: req.params.trackingCode
+      });
+
       if (!shipment) {
         return res.status(404).json({ error: 'Shipment not found' });
       }
@@ -231,11 +234,59 @@ router.patch(
       }
 
       await shipment.save();
-      res.json({ shipment, message: `Request ${request.status}` });
+
+      res.json({
+        message: `Request ${request.status}`,
+        shipment
+      });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
 );
+
+router.post(
+  '/track/:trackingCode/reschedule-request',
+  authMiddleware, // customer must be logged in
+  async (req, res) => {
+    try {
+      const { requestedDate, reason } = req.body;
+
+      const shipment = await Shipment.findOne({
+        trackingCode: req.params.trackingCode
+      });
+
+      if (!shipment) {
+        return res.status(404).json({ error: 'Shipment not found' });
+      }
+
+      // prevent multiple pending requests
+      const hasPending = shipment.rescheduleRequests.some(
+        r => r.status === 'pending'
+      );
+
+      if (hasPending) {
+        return res
+          .status(400)
+          .json({ error: 'Pending reschedule request already exists' });
+      }
+
+      shipment.rescheduleRequests.push({
+        requestedDate,
+        reason
+      });
+
+      await shipment.save();
+
+      res.status(201).json({
+        message: 'Reschedule request submitted',
+        shipment
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 module.exports = router;
