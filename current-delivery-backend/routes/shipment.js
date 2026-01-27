@@ -126,18 +126,7 @@ router.get('/track/:trackingCode', async (req, res) => {
 // EDIT SHIPMENT
 // PUT /api/shipment/:id
 // ====================
-router.put('/:id', authMiddleware, isAdmin, async (req, res) => {
-  try {
-    const updated = await Shipment.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// ====================
 
 
 // ====================
@@ -156,6 +145,27 @@ router.get('/', authMiddleware, isAdmin, async (_, res) => {
   }
 });
 
+// ====================
+// UPDATE SHIPMENT BY TRACKING CODE
+// PUT /api/shipment/track/:trackingCode
+// ====================
+router.put('/track/:trackingCode', authMiddleware, isAdmin, async (req, res) => {
+  try {
+    const updated = await Shipment.findOneAndUpdate(
+      { trackingCode: req.params.trackingCode.toUpperCase() },
+      req.body,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Shipment not found.' });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ====================
 // GET SINGLE SHIPMENT
