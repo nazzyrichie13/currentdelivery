@@ -39,65 +39,121 @@ router.post(
   upload.single('packageImage'),
   async (req, res) => {
     try {
-      const { sender, recipient, description, weight, price } = req.body;
+      // 🔹 Parse JSON fields from FormData
+      const sender =
+        typeof req.body.sender === 'string'
+          ? JSON.parse(req.body.sender)
+          : req.body.sender;
 
-      const senderData =
-        typeof sender === 'string' ? JSON.parse(sender) : sender;
-      const recipientData =
-        typeof recipient === 'string' ? JSON.parse(recipient) : recipient;
+      const recipient =
+        typeof req.body.recipient === 'string'
+          ? JSON.parse(req.body.recipient)
+          : req.body.recipient;
 
+      const destination = req.body.destination
+        ? JSON.parse(req.body.destination)
+        : { text: req.body.destination };
+
+      const location = req.body.location
+        ? JSON.parse(req.body.location)
+        : null;
+
+      // 🔹 Package & shipment fields
+      const {
+        description,
+        weight,
+        price,
+        packageType,
+        quantity,
+        shippingService,
+        expectedDeliveryDate
+      } = req.body;
+
+      // 🔹 Image
       const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
+      // 🔹 Tracking code
       const trackingCode = `CD${Date.now().toString(36).toUpperCase()}`;
 
+      // 🚚 CREATE SHIPMENT
       const shipment = await Shipment.create({
         trackingCode,
-        sender: senderData,
-        recipient: recipientData,
+        sender,
+        recipient,
+
         package: {
           description,
-          weight: parseFloat(weight) || 0,
+          weight: Number(weight) || 0,
+          serviceType: packageType,
+          quantity: Number(quantity) || 1,
           imageUrl
         },
-        price: parseFloat(price) || 0,
+
+        shippingService,
+        expectedDeliveryDate:
+          expectedDeliveryDate ? new Date(expectedDeliveryDate) : null,
+
+        destination,
+        location,
+
+        price: Number(price) || 0,
         status: 'created',
-        createdBy: req.user._id
+        createdBy: req.user._id,
+
+        history: location
+          ? [{ status: 'created', location }]
+          : []
       });
 
-      // Generate invoice
+      // 🧾 CREATE INVOICE
       const invoiceNumber = `INV-${Date.now()}`;
+      const invoice = await Invoice.create({
+        shipment: shipment._id,
+        invoiceNumber,
+        amount: shipment.price,
+        items: [
+          {
+            name: `Shipping (${shipment.shippingService})`,
+            price: shipment.price
+          }
+        ]
+      });
+
+      // 🧾 GENERATE PDF
       const { filePath, pdfUrl } = await generateInvoicePDF({
         shipment,
-        invoiceNumber
+        invoice
       });
 
-      const invoice = await Invoice.create({
-        shipmentId: shipment._id,
-        invoiceNumber,
-        pdfUrl
-      });
+      invoice.pdfUrl = pdfUrl;
+      await invoice.save();
 
+      // 🔗 LINK INVOICE
       shipment.invoiceId = invoice._id;
       await shipment.save();
 
-      // Email (non-blocking)
-      sendInvoiceEmail(
-        recipientData.email,
-        `Your shipment ${shipment.trackingCode}`,
-        'Your invoice is ready.',
-        [{ filename: `${invoiceNumber}.pdf`, path: filePath }]
-      ).catch(e =>
-        console.warn('Invoice email failed:', e.message)
-      );
+      // 📧 SEND EMAIL (non-blocking)
+      if (recipient?.email) {
+        sendInvoiceEmail(
+          recipient.email,
+          `Invoice for shipment ${shipment.trackingCode}`,
+          'Your shipment invoice is attached.',
+          [{ filename: `${invoiceNumber}.pdf`, path: filePath }]
+        ).catch(err =>
+          console.warn('Invoice email failed:', err.message)
+        );
+      }
 
-      res.status(201).json({ shipment, invoice });
+      res.status(201).json({
+        shipment,
+        invoice
+      });
     } catch (err) {
       console.error('Shipment creation error:', err);
       res.status(500).json({ error: err.message });
     }
   }
 );
-
 
 // ====================
 // TRACK SHIPMENT (PUBLIC)
