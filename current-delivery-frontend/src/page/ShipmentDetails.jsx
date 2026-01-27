@@ -102,30 +102,47 @@ export default function ShipmentDetails() {
   const [shipment, setShipment] = useState(null);
 
   useEffect(() => {
-    let mounted = true;
+  let mounted = true;
+  let retries = 0;
 
-    // ✅ Fetch shipment
-    API.get(`/api/track/${trackingCode}`)
-      .then(res => {
-        if (!mounted) return;
-        setShipment(res.data.shipment || res.data);
-      })
-      .catch(() => {});
+  const fetchShipment = async () => {
+    try {
+      const res = await API.get(`/api/track/${trackingCode}`);
+      if (!mounted) return;
+      setShipment(res.data.shipment);
+    } catch (err) {
+      if (retries < 5) {
+        retries++;
+        setTimeout(fetchShipment, 800);
+      }
+      console.log(err);
+    }
+  };
 
-    // ✅ Join socket room
-    socket.emit('join_room', { room: `tracking_${trackingCode}` });
-    socket.on('location_update', data => {
-      setShipment(prev => prev ? { ...prev, location: data.location } : prev);
-    });
+  fetchShipment();
 
-    // ✅ Cleanup socket on unmount
-    return () => {
-      mounted = false;
-      socket.off('location_update');
-    };
-  }, [trackingCode]);
+  socket.emit('join_room', { room: `tracking_${trackingCode}` });
 
-  if (!shipment) return <div className="p-6 text-center">Loading...</div>;
+  socket.on('location_update', data => {
+    setShipment(prev =>
+      prev ? { ...prev, location: data.location } : prev
+    );
+  });
+
+  return () => {
+    mounted = false;
+    socket.off('location_update');
+  };
+}, [trackingCode]);
+
+  if (!shipment) {
+  return (
+    <div className="p-6 text-center text-gray-500">
+      Loading shipment details…
+    </div>
+  );
+}
+
 
   return (
     <div>
