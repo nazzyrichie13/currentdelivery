@@ -13,36 +13,38 @@ export default function EditShipment() {
   const [loading, setLoading] = useState(true);
 
   // ------------------ LOAD SHIPMENT ------------------
-  useEffect(() => {
-    let mounted = true;
+  
+   useEffect(() => {
+  let mounted = true;
 
-    const fetchShipment = async () => {
-      try {
-        const code = trackingCode.toUpperCase();
-        const res = await API.get(`/api/shipment/track/${code}`);
+  const fetchShipment = async () => {
+    if (!trackingCode) {
+      setMsg('Tracking code is missing.');
+      return;
+    }
 
-        if (!mounted) return;
+    try {
+      const code = trackingCode.toUpperCase();
+      const res = await API.get(`/api/shipment/track/${code}`);
+      if (!mounted) return;
 
-        if (!res.data.shipment) {
-          setMsg('Shipment not found.');
-        } else {
-          const s = res.data.shipment;
-          setShipment(s);
-          setStatus(s.status || '');
-          setLat(s.location?.coords?.lat || '');
-          setLng(s.location?.coords?.lng || '');
-        }
-      } catch (err) {
-        setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
-      } finally {
-        setLoading(false);
-      }
-    };
+      const s = res.data.shipment || res.data;
+      setShipment(s);
+      setStatus(s.status || '');
+      setLat(s.location?.coords?.lat || '');
+      setLng(s.location?.coords?.lng || '');
+    } catch (err) {
+      setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
+    }
+    finally{
+      setLoading(false)
+    }
+  };
 
-    fetchShipment();
+  fetchShipment();
 
-    return () => { mounted = false; };
-  }, [trackingCode]);
+  return () => { mounted = false; };
+}, [trackingCode]);
 
   // ------------------ UPDATE STATUS / LOCATION ------------------
   const submit = async (e) => {

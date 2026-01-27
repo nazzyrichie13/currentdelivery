@@ -13,6 +13,7 @@ return (
 <Link to="/admin/create-shipment" className="p-4 bg-white rounded shadow">Create Shipment</Link>
 <Link to="/admin/shipments" className="p-4 bg-white rounded shadow">Manage Shipments</Link>
 <Link to="/admin/shipments/edit/:id" className="p-4 bg-white rounded shadow">Edit shipment</Link>
+<Link to="/editbytrack" className="p-4 bg-white rounded shadow">Edit with TrackingCode</Link>
 </div>
 </div>
 </div>

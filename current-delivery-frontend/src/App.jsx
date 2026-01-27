@@ -22,6 +22,7 @@ import VehicleDelivery from './page/VehicleDelivery';
 import HomeDelivery from './page/HomeDelivery';
 import Signup from './page/Signup';
 import AdminLogin from './page/admin/AdminLogin';
+import EditByTrackingCode from './page/admin/EditByTrackingCode';
 
 
 
@@ -39,6 +40,7 @@ return (
 <Route path="/register" element={<Signup />} />
 <Route path="/login" element={<Login />} />
 <Route path="/track" element={<TrackShipment />} />
+<Route path="/editbytrack" element={<EditByTrackingCode/>} />
 <Route path="/shipment/:trackingCode" element={<ShipmentDetails />} />
 <Route path='/about' element={<Aboutpage/>}/>
 <Route path="/contact" element={<Contact/>}/>
@@ -55,7 +57,8 @@ return (
 
 <Route path="/admin/create-shipment" element={<CreateShipment/>} />
 <Route path="/admin/shipments" element={<ShipmentsList/>} />
-<Route path="/admin/shipments/edit/:id" element={<EditShipment/>} />
+<Route path="/admin/shipments/edit/:trackingCode" element={<EditShipment />} />
+
 
 </Routes>
 
