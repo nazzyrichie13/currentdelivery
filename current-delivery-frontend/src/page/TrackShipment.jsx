@@ -9,20 +9,21 @@ export default function TrackShipment() {
   const nav = useNavigate();
 
   async function go() {
-    setErr('');
-    if (!code) return setErr('Enter tracking code');
+  setErr('');
+  if (!code) return setErr('Enter tracking code');
 
-    try {
-      // ✅ Updated API path to match backend
-      const res = await API.get(`/api/track/${code}`);
+  try {
+    // ✅ Match your backend route
+    const res = await API.get(`/api/shipment/track/${code}`);
 
-      // ✅ Navigate using shipment _id returned by backend
-      const shipment = res.data.shipment || res.data;
-      nav(`/shipment/${shipment._id}`);
-    } catch (err) {
-      setErr('Shipment not found: ' + (err.response?.data?.error || err.message));
-    }
+    const shipment = res.data.shipment || res.data;
+    // ✅ Navigate using trackingCode instead of _id
+    nav(`/shipment/${shipment.trackingCode}`);
+  } catch (err) {
+    setErr('Shipment not found: ' + (err.response?.data?.error || err.message));
   }
+}
+
 
   return (
     <div>
