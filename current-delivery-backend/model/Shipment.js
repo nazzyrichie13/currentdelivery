@@ -75,12 +75,14 @@ const ShipmentSchema = new Schema({
   deliveryDate: Date,
 
   location: {
-    coords: {
-      lat: Number,
-      lng: Number
-    },
-    updatedAt: Date
+  text: String,           // 👈 ADD THIS
+  coords: {
+    lat: Number,
+    lng: Number
   },
+  updatedAt: Date
+},
+
 
   history: [
     {
