@@ -35,7 +35,10 @@ export default function ShipmentDetails() {
 
     const fetchShipment = async () => {
       try {
-        const res = await API.get(`/api/shipment/track/${trackingCode}`);
+        // Force uppercase to match DB tracking code
+        const code = trackingCode.toUpperCase();
+        const res = await API.get(`/api/shipment/track/${code}`);
+
         if (!mounted) return;
 
         if (!res.data.shipment) {
@@ -44,11 +47,11 @@ export default function ShipmentDetails() {
           setShipment(res.data.shipment);
         }
       } catch (err) {
+        console.error('Error fetching shipment:', err.response?.data || err.message);
         if (err.response?.status === 404) {
           setErrorMsg('Shipment not found.');
         } else {
           setErrorMsg('Failed to load shipment.');
-          console.error(err);
         }
       } finally {
         setLoading(false);
@@ -57,7 +60,7 @@ export default function ShipmentDetails() {
 
     fetchShipment();
 
-    // Socket live location
+    // Socket live location updates
     socket.emit('join_room', { room: `tracking_${trackingCode}` });
     socket.on('location_update', data => {
       setShipment(prev =>
@@ -95,28 +98,45 @@ export default function ShipmentDetails() {
     <div>
       <Nav />
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
+        {/* Barcode */}
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
           <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">Tracking Code</h3>
-          <Barcode value={shipment.trackingCode} format="CODE128" width={1.5} height={60} displayValue background="#f9f9f9" lineColor="#111" />
+          <Barcode
+            value={shipment.trackingCode}
+            format="CODE128"
+            width={1.5}
+            height={60}
+            displayValue
+            background="#f9f9f9"
+            lineColor="#111"
+          />
         </div>
 
+        {/* Shipment Info */}
         <h2 className="text-lg sm:text-xl font-bold">Shipment {shipment.trackingCode}</h2>
         <p>Status: <strong>{shipment.status}</strong></p>
 
+        {/* Progress Bar */}
         <div className="mt-4">
           <div className="flex justify-between text-sm mb-1">
             <span className="font-medium">Delivery Progress</span>
             <span className="text-gray-600">{progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className={`${colors[shipment.status] || 'bg-gray-400'} h-3 rounded-full transition-all duration-500`} style={{ width: `${progress}%` }} />
+            <div
+              className={`${colors[shipment.status] || 'bg-gray-400'} h-3 rounded-full transition-all duration-500`}
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
 
         {shipment.status === 'on_hold' && (
-          <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">🚧 Shipment is currently on hold.</div>
+          <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">
+            🚧 Shipment is currently on hold.
+          </div>
         )}
 
+        {/* Sender / Recipient / Package */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <div>
             <h4 className="font-semibold text-sm sm:text-base">Sender</h4>
@@ -127,9 +147,15 @@ export default function ShipmentDetails() {
             <p>{shipment.package.description}</p>
             <p>Price: ${shipment.price}</p>
           </div>
+
+          {/* Map */}
           <div className="h-64 sm:h-80 md:h-96">
             {shipment.location?.coords ? (
-              <MapContainer center={[shipment.location.coords.lat, shipment.location.coords.lng]} zoom={13} className="leaflet-container w-full h-full rounded">
+              <MapContainer
+                center={[shipment.location.coords.lat, shipment.location.coords.lng]}
+                zoom={13}
+                className="leaflet-container w-full h-full rounded"
+              >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
                   <Popup>{shipment.status}</Popup>
@@ -141,6 +167,7 @@ export default function ShipmentDetails() {
           </div>
         </div>
 
+        {/* Chat */}
         <div className="mt-6">
           <h3 className="font-semibold text-base sm:text-lg">Chat</h3>
           <ChatBox room={`shipment_${shipment._id}`} />
