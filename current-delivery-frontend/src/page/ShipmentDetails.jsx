@@ -146,6 +146,9 @@ export default function ShipmentDetails() {
             <h4 className="font-semibold mt-3 text-sm sm:text-base">Package</h4>
             <p>{shipment.package.description}</p>
             <p>Price: ${shipment.price}</p>
+            <p>
+           <strong>Present Location:</strong>{' '}
+         {shipment.location?.text || 'N/A'}</p>
           </div>
 
           {/* Map */}
