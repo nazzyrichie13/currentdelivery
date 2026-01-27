@@ -37,7 +37,7 @@ export default function ShipmentsList() {
               </div>
               <div>
                 {/* ✅ Use _id for route params */}
-                <Link to={`/shipment/${s._id}`} className="text-blue-600 underline">
+                <Link to={`/shipment/${s.trackingCode}`} className="text-blue-600 underline">
                   View
                 </Link>
               </div>

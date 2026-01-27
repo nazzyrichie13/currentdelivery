@@ -17,7 +17,8 @@ export default function EditShipment() {
 
     const fetchShipment = async () => {
       try {
-        const res = await API.get(`/api/shipment/track/${trackingCode}`);
+        const code = trackingCode.toUpperCase();
+        const res = await API.get(`/api/shipment/track/${code}`);
         if (!mounted) return;
 
         const s = res.data.shipment || res.data;
@@ -54,7 +55,7 @@ export default function EditShipment() {
         }
       };
 
-      const res = await API.put(`/api/shipment/${shipment._id}`, payload);
+      const res = await API.put(`/api/shipment/${shipment._id }`, payload);
       const updated = res.data;
 
       setShipment(updated);
