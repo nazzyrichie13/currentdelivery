@@ -10,8 +10,9 @@ export default function EditShipment() {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  /* ------------------ LOAD SHIPMENT ------------------ */
+  // ------------------ LOAD SHIPMENT ------------------
   useEffect(() => {
     let mounted = true;
 
@@ -19,15 +20,22 @@ export default function EditShipment() {
       try {
         const code = trackingCode.toUpperCase();
         const res = await API.get(`/api/shipment/track/${code}`);
+
         if (!mounted) return;
 
-        const s = res.data.shipment || res.data;
-        setShipment(s);
-        setStatus(s.status || '');
-        setLat(s.location?.coords?.lat || '');
-        setLng(s.location?.coords?.lng || '');
+        if (!res.data.shipment) {
+          setMsg('Shipment not found.');
+        } else {
+          const s = res.data.shipment;
+          setShipment(s);
+          setStatus(s.status || '');
+          setLat(s.location?.coords?.lat || '');
+          setLng(s.location?.coords?.lng || '');
+        }
       } catch (err) {
         setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -36,13 +44,13 @@ export default function EditShipment() {
     return () => { mounted = false; };
   }, [trackingCode]);
 
-  /* ------------------ UPDATE STATUS / LOCATION ------------------ */
+  // ------------------ UPDATE STATUS / LOCATION ------------------
   const submit = async (e) => {
     e.preventDefault();
     setMsg('');
 
-    if (!shipment?._id) {
-      setMsg('Shipment ID missing, cannot update.');
+    if (!shipment?.trackingCode) {
+      setMsg('Shipment tracking code missing.');
       return;
     }
 
@@ -55,22 +63,21 @@ export default function EditShipment() {
         }
       };
 
-      const res = await API.put(`/api/shipment/${shipment._id }`, payload);
-      const updated = res.data;
-
-      setShipment(updated);
+      // Backend endpoint updated to support update by trackingCode
+      const res = await API.put(`/api/shipment/track/${shipment.trackingCode}`, payload);
+      setShipment(res.data);
       setMsg('Shipment updated successfully');
     } catch (err) {
       setMsg('Error: ' + (err.response?.data?.error || err.message));
     }
   };
 
+  if (loading) {
+    return <div className="p-6 text-center text-gray-500">Loading shipment details…</div>;
+  }
+
   if (!shipment) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        Loading shipment details…
-      </div>
-    );
+    return <div className="p-6 text-center text-red-500">{msg || 'Shipment not found.'}</div>;
   }
 
   return (
@@ -119,10 +126,7 @@ export default function EditShipment() {
           </div>
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Update Shipment
-        </button>
-
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">Update Shipment</button>
         {msg && <p className="mt-2 text-sm text-green-700">{msg}</p>}
       </form>
 
