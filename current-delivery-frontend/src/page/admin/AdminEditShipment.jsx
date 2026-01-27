@@ -9,42 +9,43 @@ export default function EditShipment() {
   const [status, setStatus] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
+  const [locationText, setLocationText] = useState('');
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(true);
 
   // ------------------ LOAD SHIPMENT ------------------
-  
-   useEffect(() => {
-  let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-  const fetchShipment = async () => {
-    if (!trackingCode) {
-      setMsg('Tracking code is missing.');
-      return;
-    }
+    const fetchShipment = async () => {
+      if (!trackingCode) {
+        setMsg('Tracking code is missing.');
+        setLoading(false);
+        return;
+      }
 
-    try {
-      const code = trackingCode.toUpperCase();
-      const res = await API.get(`/api/shipment/track/${code}`);
-      if (!mounted) return;
+      try {
+        const code = trackingCode.toUpperCase();
+        const res = await API.get(`/api/shipment/track/${code}`);
+        if (!mounted) return;
 
-      const s = res.data.shipment || res.data;
-      setShipment(s);
-      setStatus(s.status || '');
-      setLat(s.location?.coords?.lat || '');
-      setLng(s.location?.coords?.lng || '');
-    } catch (err) {
-      setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
-    }
-    finally{
-      setLoading(false)
-    }
-  };
+        const s = res.data.shipment || res.data;
+        setShipment(s);
+        setStatus(s.status || '');
+        setLat(s.location?.coords?.lat || '');
+        setLng(s.location?.coords?.lng || '');
+        setLocationText(s.location?.text || '');
+      } catch (err) {
+        setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchShipment();
+    fetchShipment();
 
-  return () => { mounted = false; };
-}, [trackingCode]);
+    return () => { mounted = false; };
+  }, [trackingCode]);
 
   // ------------------ UPDATE STATUS / LOCATION ------------------
   const submit = async (e) => {
@@ -61,13 +62,14 @@ export default function EditShipment() {
         status,
         location: {
           coords: { lat: parseFloat(lat), lng: parseFloat(lng) },
+          text: locationText,
           updatedAt: new Date()
         }
       };
 
       // Backend endpoint updated to support update by trackingCode
       const res = await API.put(`/api/shipment/track/${shipment.trackingCode}`, payload);
-      setShipment(res.data);
+      setShipment(res.data.shipment || res.data);
       setMsg('Shipment updated successfully');
     } catch (err) {
       setMsg('Error: ' + (err.response?.data?.error || err.message));
@@ -128,16 +130,30 @@ export default function EditShipment() {
           </div>
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">Update Shipment</button>
+        <div>
+          <label className="font-semibold">Current Location Text</label>
+          <input
+            type="text"
+            className="w-full border p-2 rounded mt-1"
+            value={locationText}
+            onChange={(e) => setLocationText(e.target.value)}
+          />
+        </div>
+
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
+          Update Shipment
+        </button>
         {msg && <p className="mt-2 text-sm text-green-700">{msg}</p>}
       </form>
 
-      <div className="mt-6 p-4 bg-gray-50 rounded">
+      <div className="mt-6 p-4 bg-gray-50 rounded space-y-1">
         <h3 className="font-semibold">Current Details:</h3>
         <p><strong>Tracking Code:</strong> {shipment.trackingCode}</p>
         <p><strong>Status:</strong> {shipment.status}</p>
         <p><strong>Latitude:</strong> {shipment.location?.coords?.lat || 'N/A'}</p>
         <p><strong>Longitude:</strong> {shipment.location?.coords?.lng || 'N/A'}</p>
+        <p><strong>Present Location:</strong> {shipment.location?.text || 'N/A'}</p>
+        <p><strong>Last Updated:</strong> {shipment.location?.updatedAt ? new Date(shipment.location.updatedAt).toLocaleString() : 'N/A'}</p>
       </div>
     </div>
   );
