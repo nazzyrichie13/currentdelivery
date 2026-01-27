@@ -4,7 +4,7 @@ import API from '../api';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import io from 'socket.io-client';
-import Nav from '../component/Nav';
+
 import ChatBox from '../component/ChatBox';
 import Barcode from 'react-barcode';
 
@@ -96,7 +96,7 @@ export default function ShipmentDetails() {
 
   return (
     <div>
-      <Nav />
+      
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
         {/* Barcode */}
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
@@ -169,8 +169,8 @@ export default function ShipmentDetails() {
 
         {/* Chat */}
         <div className="mt-6">
-          <h3 className="font-semibold text-base sm:text-lg">Chat</h3>
-          <ChatBox room={`shipment_${shipment._id}`} />
+          <h3 className=" bg-green-500 text-white font-semibold text-base sm:text-lg">Chat</h3>
+          <ChatBox room={`shipment_${shipment._id}`}  />
         </div>
       </div>
     </div>
