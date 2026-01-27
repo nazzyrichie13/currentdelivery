@@ -3,23 +3,30 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+
 const Shipment = require('../model/Shipment');
 const Invoice = require('../model/Invoice');
+
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
+
 const { generateInvoicePDF } = require('../utilis/pdf');
 const sendInvoiceEmail = require('./email').sendInvoiceEmail;
 
-// Set up uploads directory
+// ====================
+// UPLOAD CONFIG
+// ====================
 const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
-// Multer storage for single file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+  destination: (_, __, cb) => cb(null, UPLOADS_DIR),
+  filename: (_, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
 const upload = multer({ storage });
+
 
 // ====================
 // CREATE SHIPMENT
@@ -34,26 +41,35 @@ router.post(
     try {
       const { sender, recipient, description, weight, price } = req.body;
 
-      // Parse sender & recipient JSON if sent as strings
-      const senderData = typeof sender === 'string' ? JSON.parse(sender) : sender;
-      const recipientData = typeof recipient === 'string' ? JSON.parse(recipient) : recipient;
+      const senderData =
+        typeof sender === 'string' ? JSON.parse(sender) : sender;
+      const recipientData =
+        typeof recipient === 'string' ? JSON.parse(recipient) : recipient;
 
       const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-      const trackingCode = 'CD' + Date.now().toString(36).toUpperCase();
+
+      const trackingCode = `CD${Date.now().toString(36).toUpperCase()}`;
 
       const shipment = await Shipment.create({
         trackingCode,
         sender: senderData,
         recipient: recipientData,
-        package: { description, weight: parseFloat(weight) || 0, imageUrl },
+        package: {
+          description,
+          weight: parseFloat(weight) || 0,
+          imageUrl
+        },
         price: parseFloat(price) || 0,
         status: 'created',
         createdBy: req.user._id
       });
 
-      // Generate invoice PDF
-      const invoiceNumber = 'INV-' + Date.now();
-      const { filePath, pdfUrl } = await generateInvoicePDF({ shipment, invoiceNumber });
+      // Generate invoice
+      const invoiceNumber = `INV-${Date.now()}`;
+      const { filePath, pdfUrl } = await generateInvoicePDF({
+        shipment,
+        invoiceNumber
+      });
 
       const invoice = await Invoice.create({
         shipmentId: shipment._id,
@@ -64,17 +80,15 @@ router.post(
       shipment.invoiceId = invoice._id;
       await shipment.save();
 
-      // Send invoice email
-      try {
-        await sendInvoiceEmail(
-          recipientData.email,
-          `Your shipment ${shipment.trackingCode}`,
-          `Your invoice is ready.`,
-          [{ filename: `${invoiceNumber}.pdf`, path: filePath }]
-        );
-      } catch (e) {
-        console.warn('Email sending failed:', e.message);
-      }
+      // Email (non-blocking)
+      sendInvoiceEmail(
+        recipientData.email,
+        `Your shipment ${shipment.trackingCode}`,
+        'Your invoice is ready.',
+        [{ filename: `${invoiceNumber}.pdf`, path: filePath }]
+      ).catch(e =>
+        console.warn('Invoice email failed:', e.message)
+      );
 
       res.status(201).json({ shipment, invoice });
     } catch (err) {
@@ -84,31 +98,64 @@ router.post(
   }
 );
 
+
+// ====================
+// TRACK SHIPMENT (PUBLIC)
+// GET /api/shipment/track/:trackingCode
+// ====================
+router.get('/track/:trackingCode', async (req, res) => {
+  try {
+    const shipment = await Shipment.findOne({
+      trackingCode: req.params.trackingCode
+    }).lean();
+
+    if (!shipment) {
+      return res
+        .status(404)
+        .json({ error: 'Shipment not found yet' });
+    }
+
+    res.json({ shipment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // ====================
 // EDIT SHIPMENT
 // PUT /api/shipment/:id
 // ====================
 router.put('/:id', authMiddleware, isAdmin, async (req, res) => {
   try {
-    const updated = await Shipment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updated = await Shipment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+
 // ====================
 // LIST SHIPMENTS
 // GET /api/shipment
 // ====================
-router.get('/', authMiddleware, isAdmin, async (req, res) => {
+router.get('/', authMiddleware, isAdmin, async (_, res) => {
   try {
-    const shipments = await Shipment.find({}).sort({ createdAt: -1 }).limit(200);
+    const shipments = await Shipment.find({})
+      .sort({ createdAt: -1 })
+      .limit(200);
+
     res.json(shipments);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // ====================
 // GET SINGLE SHIPMENT
@@ -116,52 +163,69 @@ router.get('/', authMiddleware, isAdmin, async (req, res) => {
 // ====================
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const shipment = await Shipment.findById(req.params.id).populate('invoiceId');
+    const shipment = await Shipment
+      .findById(req.params.id)
+      .populate('invoiceId');
+
+    if (!shipment) {
+      return res.status(404).json({ error: 'Shipment not found' });
+    }
+
     res.json(shipment);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+
 // ====================
-// RESCHEDULE REQUEST APPROVAL/REJECTION
+// RESCHEDULE REQUEST DECISION
 // PATCH /api/shipment/:shipmentId/reschedule-request/:requestId
 // ====================
-router.patch('/:shipmentId/reschedule-request/:requestId', authMiddleware, isAdmin, async (req, res) => {
-  try {
-    const { action, adminNote } = req.body; // approve | reject
+router.patch(
+  '/:shipmentId/reschedule-request/:requestId',
+  authMiddleware,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const { action, adminNote } = req.body;
 
-    const shipment = await Shipment.findById(req.params.shipmentId);
-    if (!shipment) return res.status(404).json({ error: 'Shipment not found' });
+      const shipment = await Shipment.findById(req.params.shipmentId);
+      if (!shipment) {
+        return res.status(404).json({ error: 'Shipment not found' });
+      }
 
-    const request = shipment.rescheduleRequests.id(req.params.requestId);
-    if (!request) return res.status(404).json({ error: 'Request not found' });
+      const request = shipment.rescheduleRequests.id(req.params.requestId);
+      if (!request) {
+        return res.status(404).json({ error: 'Request not found' });
+      }
 
-    if (request.status !== 'pending') {
-      return res.status(400).json({ error: 'Request already processed' });
+      if (request.status !== 'pending') {
+        return res.status(400).json({ error: 'Request already processed' });
+      }
+
+      if (action === 'approve') {
+        shipment.reschedules.push({
+          oldDate: shipment.deliveryDate,
+          newDate: request.requestedDate,
+          reason: request.reason,
+          rescheduledBy: req.user._id
+        });
+
+        shipment.deliveryDate = request.requestedDate;
+        shipment.status = 'rescheduled';
+        request.status = 'approved';
+      } else {
+        request.status = 'rejected';
+        request.adminNote = adminNote;
+      }
+
+      await shipment.save();
+      res.json({ shipment, message: `Request ${request.status}` });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
     }
-
-    if (action === 'approve') {
-      shipment.reschedules.push({
-        oldDate: shipment.deliveryDate,
-        newDate: request.requestedDate,
-        reason: request.reason,
-        rescheduledBy: req.user._id
-      });
-      shipment.deliveryDate = request.requestedDate;
-      shipment.status = 'rescheduled';
-      request.status = 'approved';
-    } else {
-      request.status = 'rejected';
-      request.adminNote = adminNote;
-    }
-
-    await shipment.save();
-
-    res.json({ message: `Request ${request.status}`, shipment });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 module.exports = router;
