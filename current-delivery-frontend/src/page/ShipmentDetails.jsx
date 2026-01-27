@@ -93,6 +93,31 @@ export default function ShipmentDetails() {
     delivered: 'bg-green-500',
     cancelled: 'bg-red-500'
   };
+  const downloadInvoice = async () => {
+  try {
+    const res = await API.get(
+      `/api/invoice/download/${shipment.trackingCode}`,
+      { responseType: 'blob' }
+    );
+
+    const url = window.URL.createObjectURL(
+      new Blob([res.data], { type: 'application/pdf' })
+    );
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `invoice-${shipment.trackingCode}.pdf`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    alert('Invoice not available',err);
+  }
+};
+
 
   return (
     <div>
@@ -137,44 +162,130 @@ export default function ShipmentDetails() {
         )}
 
         {/* Sender / Recipient / Package */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <div>
-            <h4 className="font-semibold text-sm sm:text-base">Sender</h4>
-            <p>{shipment.sender.name}</p>
-            <h4 className="font-semibold mt-3 text-sm sm:text-base">Recipient</h4>
-            <p>{shipment.recipient.name}</p>
-            <h4 className="font-semibold mt-3 text-sm sm:text-base">Package</h4>
-            <p>{shipment.package.description}</p>
-            <p>Price: ${shipment.price}</p>
-            <p>
-           <strong>Present Location:</strong>{' '}
-         {shipment.location?.text || 'N/A'}</p>
-          </div>
+        
+               {/* Sender / Recipient / Package */}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 
-          {/* Map */}
-          <div className="h-64 sm:h-80 md:h-96">
-            {shipment.location?.coords ? (
-              <MapContainer
-                center={[shipment.location.coords.lat, shipment.location.coords.lng]}
-                zoom={13}
-                className="leaflet-container w-full h-full rounded"
-              >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
-                  <Popup>{shipment.status}</Popup>
-                </Marker>
-              </MapContainer>
-            ) : (
-              <div className="p-4 text-sm text-gray-500">No location yet</div>
-            )}
-          </div>
+  {/* LEFT: DETAILS */}
+  <div className="space-y-3 text-sm sm:text-base">
+
+    <div>
+      <h4 className="font-semibold">Sender</h4>
+      <p>{shipment.sender.name}</p>
+      <p className="text-gray-500">{shipment.sender.address}</p>
+    </div>
+
+    <div>
+      <h4 className="font-semibold">Recipient</h4>
+      <p>{shipment.recipient.name}</p>
+      <p className="text-gray-500">{shipment.recipient.address}</p>
+    </div>
+
+    <div>
+      <h4 className="font-semibold">Package Details</h4>
+      <p><strong> Package Description:</strong> {shipment.package.description}</p>
+      <p><strong>Package Service Type:</strong> {shipment.package.serviceType}</p>
+      <p><strong> Package quantity:</strong> {shipment.package.quantity}</p>
+      <p><strong> Package Weight:</strong> {shipment.package.weight} kg</p>
+      <p><strong>Shipping Cost:</strong> ${shipment.price}</p>
+    </div>
+
+    <div>
+      <h4 className="font-semibold">Shipping Info</h4>
+      <p><strong>Service:</strong> {shipment.shippingService}</p>
+      <p>
+        <strong>Expected Delivery:</strong>{' '}
+        {shipment.expectedDeliveryDate
+          ? new Date(shipment.expectedDeliveryDate).toDateString()
+          : 'N/A'}
+      </p>
+      <p>
+        <strong>Confirmed Delivery:</strong>{' '}
+        {shipment.deliveryDate
+          ? new Date(shipment.deliveryDate).toDateString()
+          : 'Not yet'}
+      </p>
+    </div>
+
+    <div>
+      <h4 className="font-semibold"> Package Destination</h4>
+      <p>{shipment.destination?.text || 'N/A'}</p>
+    </div>
+
+    <div>
+      <h4 className="font-semibold">Current Location</h4>
+      <p>{shipment.location?.text || 'N/A'}</p>
+      <p className="text-xs text-gray-500">
+        Last updated:{' '}
+        {shipment.location?.updatedAt
+          ? new Date(shipment.location.updatedAt).toLocaleString()
+          : '—'}
+      </p>
+    </div>
+  </div>
+
+  {/* RIGHT: PACKAGE IMAGE + MAP */}
+  <div className="space-y-3">
+
+    {/* 📦 Package Image */}
+    {shipment.package.imageUrl && (
+      <div>
+        <h4 className="font-semibold text-sm mb-1">Package Image</h4>
+        <img
+          src={shipment.package.imageUrl}
+          alt="Package"
+          className="w-full h-48 object-cover rounded border"
+        />
+      </div>
+    )}
+{shipment.invoiceId && (
+  <button
+    onClick={downloadInvoice}
+    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold"
+  >
+    📄 Download Invoice
+  </button>
+)}
+
+    {/* 🗺 Map */}
+    <div className="h-64 sm:h-80 md:h-96">
+      {shipment.location?.coords ? (
+        <MapContainer
+          center={[
+            shipment.location.coords.lat,
+            shipment.location.coords.lng
+          ]}
+          zoom={13}
+          className="leaflet-container w-full h-full rounded"
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <Marker
+            position={[
+              shipment.location.coords.lat,
+              shipment.location.coords.lng
+            ]}
+          >
+            <Popup>
+              <strong>Status:</strong> {shipment.status}<br />
+              {shipment.location.text}
+            </Popup>
+          </Marker>
+        </MapContainer>
+      ) : (
+        <div className="p-4 text-sm text-gray-500 border rounded">
+          No location yet
         </div>
+      )}
+    </div>
+  </div>
+</div>
+
 
         {/* Chat */}
         <div className="mt-6">
           <h3 className=" bg-green-500 text-white font-semibold text-base sm:text-lg">Chat</h3>
           <ChatBox room={`shipment_${shipment._id}`}  />
-          <Link to={'/reschudle'}>Do you want to reschdule delivery Date click here</Link>
+          <Link to={'/reschdule'}>Do you want to reschdule delivery Date click here</Link>
         </div>
       </div>
     </div>
