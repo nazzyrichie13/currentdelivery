@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import API from '../../api';
-import Nav from '../../component/Nav';
+
 
 export default function CreateShipment() {
   const [sender, setSender] = useState({ name:'', email:'', phone:'', address:'' });
@@ -34,7 +34,7 @@ export default function CreateShipment() {
 
   return (
     <div>
-      <Nav admin />
+      
       <div className="max-w-3xl mx-auto p-6 bg-white mt-6 rounded shadow">
         <h2 className="text-xl font-bold mb-4">Create Shipment (Admin)</h2>
         <form onSubmit={submit} className="space-y-3">

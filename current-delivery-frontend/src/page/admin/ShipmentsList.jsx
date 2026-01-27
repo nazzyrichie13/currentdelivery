@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import API from '../../api';
-import Nav from '../../component/Nav';
+
 import { Link } from 'react-router-dom';
 
 export default function ShipmentsList() {
@@ -22,7 +22,7 @@ export default function ShipmentsList() {
 
   return (
     <div>
-      <Nav admin />
+      
       <div className="p-6">
         <h2 className="text-xl font-bold mb-4">Shipments</h2>
         {msg && <p className="mb-4 text-red-600">{msg}</p>}

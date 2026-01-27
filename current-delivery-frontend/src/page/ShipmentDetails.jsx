@@ -27,47 +27,58 @@ function getShipmentProgress(status) {
 export default function ShipmentDetails() {
   const { trackingCode } = useParams();
   const [shipment, setShipment] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let mounted = true;
 
     const fetchShipment = async () => {
       try {
-        // ✅ Match your backend route exactly
         const res = await API.get(`/api/shipment/track/${trackingCode}`);
-
         if (!mounted) return;
 
-        // ✅ Accept both response shapes
-        const s = res.data.shipment || res.data;
-        setShipment(s);
+        setShipment(res.data.shipment);
+        setLoading(false);
       } catch (err) {
-        console.error('Error fetching shipment:', err.response?.data || err.message);
+        setError(err.response?.data?.error || 'Failed to fetch shipment');
+        setLoading(false);
       }
     };
 
     fetchShipment();
 
-    // ✅ Join socket room for live location
+    return () => {
+      mounted = false;
+    };
+  }, [trackingCode]);
+
+  // Join socket only if shipment exists
+  useEffect(() => {
+    if (!shipment?._id) return;
+
     socket.emit('join_room', { room: `tracking_${trackingCode}` });
-    socket.on('location_update', data => {
+    socket.on('location_update', (data) => {
       setShipment(prev =>
         prev ? { ...prev, location: data.location } : prev
       );
     });
 
     return () => {
-      mounted = false;
       socket.off('location_update');
     };
-  }, [trackingCode]);
+  }, [shipment, trackingCode]);
+
+  if (loading) {
+    return <div className="p-6 text-center text-gray-500">Loading shipment details…</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-center text-red-500">{error}</div>;
+  }
 
   if (!shipment) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        Shipment details are loading… Please wait.
-      </div>
-    );
+    return <div className="p-6 text-center text-gray-500">Shipment not found.</div>;
   }
 
   const progress = getShipmentProgress(shipment.status);
@@ -87,9 +98,7 @@ export default function ShipmentDetails() {
       <Nav />
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
-          <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">
-            Tracking Code
-          </h3>
+          <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">Tracking Code</h3>
           <Barcode
             value={shipment.trackingCode}
             format="CODE128"
@@ -101,9 +110,7 @@ export default function ShipmentDetails() {
           />
         </div>
 
-        <h2 className="text-lg sm:text-xl font-bold">
-          Shipment {shipment.trackingCode}
-        </h2>
+        <h2 className="text-lg sm:text-xl font-bold">Shipment {shipment.trackingCode}</h2>
         <p>Status: <strong>{shipment.status}</strong></p>
 
         <div className="mt-4">
@@ -153,7 +160,6 @@ export default function ShipmentDetails() {
           </div>
         </div>
 
-        {/* Chat */}
         <div className="mt-6">
           <h3 className="font-semibold text-base sm:text-lg">Chat</h3>
           <ChatBox room={`shipment_${shipment._id}`} />
