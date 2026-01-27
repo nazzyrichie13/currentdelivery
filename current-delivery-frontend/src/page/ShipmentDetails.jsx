@@ -28,7 +28,7 @@ export default function ShipmentDetails() {
   const { trackingCode } = useParams();
   const [shipment, setShipment] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -38,47 +38,45 @@ export default function ShipmentDetails() {
         const res = await API.get(`/api/shipment/track/${trackingCode}`);
         if (!mounted) return;
 
-        setShipment(res.data.shipment);
-        setLoading(false);
+        if (!res.data.shipment) {
+          setErrorMsg('Shipment not found.');
+        } else {
+          setShipment(res.data.shipment);
+        }
       } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch shipment');
+        if (err.response?.status === 404) {
+          setErrorMsg('Shipment not found.');
+        } else {
+          setErrorMsg('Failed to load shipment.');
+          console.error(err);
+        }
+      } finally {
         setLoading(false);
       }
     };
 
     fetchShipment();
 
-    return () => {
-      mounted = false;
-    };
-  }, [trackingCode]);
-
-  // Join socket only if shipment exists
-  useEffect(() => {
-    if (!shipment?._id) return;
-
+    // Socket live location
     socket.emit('join_room', { room: `tracking_${trackingCode}` });
-    socket.on('location_update', (data) => {
+    socket.on('location_update', data => {
       setShipment(prev =>
         prev ? { ...prev, location: data.location } : prev
       );
     });
 
     return () => {
+      mounted = false;
       socket.off('location_update');
     };
-  }, [shipment, trackingCode]);
+  }, [trackingCode]);
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-500">Loading shipment details…</div>;
+    return <div className="p-6 text-center text-gray-500">Loading shipment…</div>;
   }
 
-  if (error) {
-    return <div className="p-6 text-center text-red-500">{error}</div>;
-  }
-
-  if (!shipment) {
-    return <div className="p-6 text-center text-gray-500">Shipment not found.</div>;
+  if (errorMsg) {
+    return <div className="p-6 text-center text-red-500">{errorMsg}</div>;
   }
 
   const progress = getShipmentProgress(shipment.status);
@@ -99,15 +97,7 @@ export default function ShipmentDetails() {
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
           <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">Tracking Code</h3>
-          <Barcode
-            value={shipment.trackingCode}
-            format="CODE128"
-            width={1.5}
-            height={60}
-            displayValue
-            background="#f9f9f9"
-            lineColor="#111"
-          />
+          <Barcode value={shipment.trackingCode} format="CODE128" width={1.5} height={60} displayValue background="#f9f9f9" lineColor="#111" />
         </div>
 
         <h2 className="text-lg sm:text-xl font-bold">Shipment {shipment.trackingCode}</h2>
@@ -119,17 +109,12 @@ export default function ShipmentDetails() {
             <span className="text-gray-600">{progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className={`${colors[shipment.status] || 'bg-gray-400'} h-3 rounded-full transition-all duration-500`}
-              style={{ width: `${progress}%` }}
-            />
+            <div className={`${colors[shipment.status] || 'bg-gray-400'} h-3 rounded-full transition-all duration-500`} style={{ width: `${progress}%` }} />
           </div>
         </div>
 
         {shipment.status === 'on_hold' && (
-          <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">
-            🚧 Shipment is currently on hold.
-          </div>
+          <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">🚧 Shipment is currently on hold.</div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -144,11 +129,7 @@ export default function ShipmentDetails() {
           </div>
           <div className="h-64 sm:h-80 md:h-96">
             {shipment.location?.coords ? (
-              <MapContainer
-                center={[shipment.location.coords.lat, shipment.location.coords.lng]}
-                zoom={13}
-                className="leaflet-container w-full h-full rounded"
-              >
+              <MapContainer center={[shipment.location.coords.lat, shipment.location.coords.lng]} zoom={13} className="leaflet-container w-full h-full rounded">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
                   <Popup>{shipment.status}</Popup>
