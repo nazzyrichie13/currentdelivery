@@ -153,7 +153,7 @@ export default function CreateShipment() {
 
         {/* Price */}
         <input className="w-full border p-2" type="number"
-          placeholder="Price"
+          placeholder="Shipping price"
           value={price}
           onChange={e=>setPrice(e.target.value)} />
 
