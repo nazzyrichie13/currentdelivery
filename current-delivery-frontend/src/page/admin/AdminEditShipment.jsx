@@ -3,100 +3,78 @@ import { useParams } from 'react-router-dom';
 import API from '../../api';
 
 export default function EditShipment() {
-  const { id } = useParams();
+  const { trackingCode } = useParams();
 
   const [shipment, setShipment] = useState(null);
   const [status, setStatus] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
-  const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
-  const [error, setError] = useState('');
 
-  /* ================== LOAD SHIPMENT ================== */
+  /* ------------------ LOAD SHIPMENT ------------------ */
   useEffect(() => {
     let mounted = true;
 
-    const loadShipment = async () => {
+    const fetchShipment = async () => {
       try {
-        const res = await API.get(`/api/shipment/${id}`);
-
+        const res = await API.get(`/api/shipment/track/${trackingCode}`);
         if (!mounted) return;
 
-        const s = res.data; // backend returns shipment directly
-
+        const s = res.data.shipment || res.data;
         setShipment(s);
-        setStatus(s.status ?? '');
-        setLat(s.location?.coords?.lat ?? '');
-        setLng(s.location?.coords?.lng ?? '');
+        setStatus(s.status || '');
+        setLat(s.location?.coords?.lat || '');
+        setLng(s.location?.coords?.lng || '');
       } catch (err) {
-        if (!mounted) return;
-        setError(err.response?.data?.error || 'Failed to load shipment');
-      } finally {
-        if (mounted) setLoading(false);
+        setMsg('Failed to load shipment: ' + (err.response?.data?.error || err.message));
       }
     };
 
-    loadShipment();
+    fetchShipment();
 
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    return () => { mounted = false; };
+  }, [trackingCode]);
 
-  /* ================== UPDATE SHIPMENT ================== */
+  /* ------------------ UPDATE STATUS / LOCATION ------------------ */
   const submit = async (e) => {
     e.preventDefault();
     setMsg('');
-    setError('');
+
+    if (!shipment?._id) {
+      setMsg('Shipment ID missing, cannot update.');
+      return;
+    }
 
     try {
       const payload = {
         status,
         location: {
-          coords: {
-            lat: lat !== '' ? parseFloat(lat) : undefined,
-            lng: lng !== '' ? parseFloat(lng) : undefined
-          },
+          coords: { lat: parseFloat(lat), lng: parseFloat(lng) },
           updatedAt: new Date()
         }
       };
 
-      const res = await API.put(`/api/shipment/${id}`, payload);
-      setShipment(res.data);
+      const res = await API.put(`/api/shipment/${shipment._id}`, payload);
+      const updated = res.data;
+
+      setShipment(updated);
       setMsg('Shipment updated successfully');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update shipment');
+      setMsg('Error: ' + (err.response?.data?.error || err.message));
     }
   };
-
-  /* ================== UI STATES ================== */
-  if (loading) {
-    return <div className="p-6 text-center">Loading shipment…</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        {error}
-      </div>
-    );
-  }
 
   if (!shipment) {
     return (
       <div className="p-6 text-center text-gray-500">
-        Shipment not found
+        Loading shipment details…
       </div>
     );
   }
 
-  /* ================== FORM ================== */
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white mt-6 rounded shadow">
-      <h2 className="text-xl font-bold mb-4">
-        Edit Shipment Status & Location
-      </h2>
+      <h2 className="text-xl font-bold mb-4">Edit Shipment Status & Location</h2>
 
       <form onSubmit={submit} className="space-y-4">
         <div>
@@ -128,7 +106,6 @@ export default function EditShipment() {
               onChange={(e) => setLat(e.target.value)}
             />
           </div>
-
           <div>
             <label className="font-semibold">Longitude</label>
             <input
@@ -141,13 +118,20 @@ export default function EditShipment() {
           </div>
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
           Update Shipment
         </button>
 
-        {msg && <p className="text-green-700 text-sm">{msg}</p>}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {msg && <p className="mt-2 text-sm text-green-700">{msg}</p>}
       </form>
+
+      <div className="mt-6 p-4 bg-gray-50 rounded">
+        <h3 className="font-semibold">Current Details:</h3>
+        <p><strong>Tracking Code:</strong> {shipment.trackingCode}</p>
+        <p><strong>Status:</strong> {shipment.status}</p>
+        <p><strong>Latitude:</strong> {shipment.location?.coords?.lat || 'N/A'}</p>
+        <p><strong>Longitude:</strong> {shipment.location?.coords?.lng || 'N/A'}</p>
+      </div>
     </div>
   );
 }
