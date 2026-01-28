@@ -3,8 +3,8 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 const path = require('path');
 
-const Shipment = require('../models/Shipment');
-const Invoice = require('../models/Invoice');
+const Shipment = require('../model/Shipment');
+const Invoice = require('../model/Invoice');
 
 router.get('/download/:trackingCode', async (req, res) => {
   try {
