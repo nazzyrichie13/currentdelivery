@@ -13,9 +13,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-
 /* =======================
-   PATHS (DEFINE FIRST)
+   PATHS
 ======================= */
 const FRONTEND_DIST = path.join(__dirname, '../current-delivery-frontend', 'dist');
 const INVOICES_DIR = path.join(__dirname, process.env.INVOICES_DIR || 'invoice');
@@ -24,13 +23,9 @@ const UPLOADS_DIR = path.join(__dirname, process.env.UPLOADS_DIR || 'upload');
 /* =======================
    MIDDLEWARE
 ======================= */
-
-
 app.use(cors({ origin: '*' }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 /* =======================
    STATIC FILES
@@ -42,63 +37,56 @@ app.use('/upload', express.static(UPLOADS_DIR));
 /* =======================
    API ROUTES
 ======================= */
-// At the top, after other routes
-
-app.use("/api/admin", require("./routes/adminRoutes"));
-app.use('/api/auth/login',require('./routes/auth'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/shipment', require('./routes/shipment'));
 app.use('/api/track', require('./routes/tracking'));
 app.use('/api/invoice', require('./routes/invoice'));
-app.use('/api/upload', require('./routes/upload'));
 app.use('/api/email', require('./routes/email'));
 
 /* =======================
-   REACT FALLBACK (LAST)
+   REACT FALLBACK
 ======================= */
-app.use((req, res, next) => { 
-   if ( req.path.startsWith('/api') || req.path.startsWith('/invoices') || req.path.startsWith('/upload') )
-   { return next(); } res.sendFile(path.join(FRONTEND_DIST, 'index.html')); });
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/upload') ||
+    req.path.startsWith('/invoices')
+  ) {
+    return next();
+  }
+  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+});
+
 /* =======================
    DATABASE
 ======================= */
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected ✅'))
   .catch(err => console.error('MongoDB error ❌', err));
-
-
-  
-   
-
 
 /* =======================
    SOCKET.IO
 ======================= */
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   console.log('Socket connected', socket.id);
 
-  socket.on('join_room', ({ room }) => {
-    socket.join(room);
-  });
+  socket.on('join_room', ({ room }) => socket.join(room));
 
-  socket.on('chat_message', async (msg) => {
-    const Chat = require('./models/Chat');
-    const message = await Chat.create({
-      chatId: msg.room,
-      senderId: msg.senderId,
-      senderName: msg.senderName,
-      text: msg.text
-    });
-    io.to(msg.room).emit('chat_message', message);
-  });
-
-  socket.on('location_update', async (payload) => {
+  socket.on('location_update', async payload => {
     const Shipment = require('./models/Shipment');
     const s = await Shipment.findOneAndUpdate(
       { trackingCode: payload.trackingCode },
       {
         location: { coords: payload.coords, updatedAt: new Date() },
-        $push: { history: { status: payload.status || 'in_transit', location: payload.coords, timestamp: new Date() } }
+        $push: {
+          history: {
+            status: payload.status || 'in_transit',
+            location: payload.coords,
+            timestamp: new Date()
+          }
+        }
       },
       { new: true }
     );
@@ -110,4 +98,6 @@ io.on('connection', (socket) => {
    START SERVER
 ======================= */
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+server.listen(PORT, () =>
+  console.log(`Server running on port ${PORT} 🚀`)
+);
