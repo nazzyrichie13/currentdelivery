@@ -164,23 +164,23 @@ export default function ShipmentDetails() {
 
     <div>
       <h4 className="font-semibold text-blue-300">Package Details</h4>
-      <p><strong> Package Description:</strong> {shipment.package.description}</p>
-      <p><strong>Package Service Type:</strong> {shipment.package.serviceType}</p>
-      <p><strong> Package quantity:</strong> {shipment.package.quantity}</p>
-      <p><strong> Package Weight:</strong> {shipment.package.weight} kg</p>
-      <p><strong>Shipping Cost:</strong> ${shipment.price}</p>
+      <p className="text-gray-500"><strong> Package Description:</strong> {shipment.package.description}</p>
+      <p className="text-gray-500"><strong>Package Service Type:</strong> {shipment.package.serviceType}</p>
+      <p className="text-gray-500"><strong> Package quantity:</strong> {shipment.package.quantity}</p>
+      <p className="text-gray-500"><strong> Package Weight:</strong> {shipment.package.weight} kg</p>
+      <p className="text-gray-500"><strong>Shipping Cost:</strong> ${shipment.price}</p>
     </div>
 
     <div>
       <h4 className="font-semibold text-blue-300">Shipping Details</h4>
-      <p><strong>Service:</strong> {shipment.shippingService}</p>
-      <p>
+      <p className="text-gray-500"><strong>Service:</strong> {shipment.shippingService}</p>
+      <p className="text-gray-500">
         <strong className='text-blue-950'>Expected Delivery:</strong>{' '}
         {shipment.expectedDeliveryDate
           ? new Date(shipment.expectedDeliveryDate).toDateString()
           : 'N/A'}
       </p>
-      <p>
+      <p className="text-gray-500">
         <strong className='text-green-400'>Confirmed Delivery:</strong>{' '}
         {shipment.deliveryDate
           ? new Date(shipment.deliveryDate).toDateString()
@@ -190,12 +190,12 @@ export default function ShipmentDetails() {
 
     <div>
       <h4 className="font-semibold text-blue-300"> Package Destination</h4>
-      <p>{shipment.destination?.text || 'N/A'}</p>
+      <p className="text-gray-500">{shipment.destination?.text || 'N/A'}</p>
     </div>
 
     <div>
       <h4 className="font-semibold text-blue-300">Current Location</h4>
-      <p>{shipment.location?.text || 'N/A'}</p>
+      <p className="text-gray-500">{shipment.location?.text || 'N/A'}</p>
       <p className="text-xs text-gray-500">
         Last updated:{' '}
         {shipment.location?.updatedAt
@@ -217,6 +217,7 @@ export default function ShipmentDetails() {
           alt="Package"
           className="w-full h-48 object-cover rounded border"
         />
+        
       </div>
     )}
 
