@@ -69,12 +69,9 @@ router.post(
         expectedDeliveryDate
       } = req.body;
 
-      // 🔹 Image
       const imageUrl = req.file
   ? `${req.protocol}://${req.get('host')}/upload/${req.file.filename}`
   : undefined;
-
-
       // 🔹 Tracking code
       const trackingCode = `CD${Date.now().toString(36).toUpperCase()}`;
 
