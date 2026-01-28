@@ -149,14 +149,14 @@ export default function ShipmentDetails() {
 
     <div>
       <h4 className="font-semibold text-blue-300">Sender infomation</h4>
-      <p>{shipment.sender.name}</p>
-      <p>{shipment.sender.email}</p>
+      <p className="text-gray-500">{shipment.sender.name}</p>
+      <p className="text-gray-500">{shipment.sender.email}</p>
       <p className="text-gray-500">{shipment.sender.address}</p>
     </div>
 
     <div>
       <h4 className="font-semibold text-blue-300">Recipient </h4>
-      <p>{shipment.recipient.name}</p>
+      <p className="text-gray-500">{shipment.recipient.name}</p>
       <p className="text-gray-500">{shipment.recipient.email}</p>
        <p className="text-gray-500">{shipment.recipient.phone }</p>
       <p className="text-gray-500">{shipment.recipient.address}</p>
