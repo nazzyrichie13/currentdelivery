@@ -24,6 +24,7 @@ import Signup from './page/Signup';
 import AdminLogin from './page/admin/AdminLogin';
 import EditByTrackingCode from './page/admin/EditByTrackingCode';
 import RescheduleByTracking from './page/RescheduleByTracking';
+import AdminRescheduleRequestCard from './page/admin/AdminRescheduleRequestCard';
 
 
 
@@ -56,6 +57,8 @@ return (
 <Route path="/admin/login" element={<AdminLogin />} />
 <Route path="/admin" element={  <AdminDashboard />}/>
 <Route path="/reschdule" element={  <RescheduleByTracking />}/>
+<Route path="/reschdulecard" element={  <AdminRescheduleRequestCard />}/>
+
 
 
 <Route path="/admin/create-shipment" element={<CreateShipment/>} />

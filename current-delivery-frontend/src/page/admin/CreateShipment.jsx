@@ -42,7 +42,8 @@ export default function CreateShipmentWithInvoice() {
   JSON.stringify({ text: destination })
 );
     fd.append('price', price);
-    if (file) fd.append('packageImage', file);
+    if (file) fd.append('file', file); // <-- must be "file"
+
 
     try {
       const res = await API.post('/api/shipment', fd);
