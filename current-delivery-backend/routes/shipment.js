@@ -9,7 +9,7 @@ const Invoice = require('../model/Invoice');
 
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
-const upload = require('../upload');
+const upload = require('./upload');
 const { generateInvoicePDF } = require('../utilis/pdf');
 const sendInvoiceEmail = require('./email').sendInvoiceEmail;
 
