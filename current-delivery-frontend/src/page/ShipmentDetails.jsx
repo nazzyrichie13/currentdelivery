@@ -93,37 +93,7 @@ export default function ShipmentDetails() {
     delivered: 'bg-green-500',
     cancelled: 'bg-red-500'
   };
-  const downloadInvoice = async () => {
-  try {
-    const res = await API.get(
-      `/api/invoice/download/${shipment.trackingCode}`,
-      { responseType: 'blob' } // Important for PDFs
-    );
-
-    // Create a blob URL for the PDF
-    const url = window.URL.createObjectURL(
-      new Blob([res.data], { type: 'application/pdf' })
-    );
-
-    // Create a temporary link to trigger download
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute(
-      'download',
-      `invoice-${shipment.trackingCode}.pdf`
-    );
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    // Free memory
-    window.URL.revokeObjectURL(url);
-
-  } catch (err) {
-    console.error('Invoice download failed:', err);
-    alert('Invoice not available: ' + (err.response?.data?.error || err.message));
-  }
-};
+  
 
 
 
@@ -246,14 +216,6 @@ export default function ShipmentDetails() {
         />
       </div>
     )}
-{shipment.invoiceId && (
-  <button
-    onClick={downloadInvoice}
-    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold"
-  >
-    📄 Download Invoice
-  </button>
-)}
 
     {/* 🗺 Map */}
     <div className="h-64 sm:h-80 md:h-96">
