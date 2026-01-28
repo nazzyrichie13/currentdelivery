@@ -1,29 +1,20 @@
-const express = require('express');
 const multer = require('multer');
-const router = express.Router();
 const fs = require('fs');
-const path = require('path');
 
-// Upload folder
-const UP = process.env.UPLOADS_DIR || 'upload';
-if (!fs.existsSync(UP)) fs.mkdirSync(UP, { recursive: true });
+const UPLOADS_DIR = process.env.UPLOADS_DIR || 'upload';
 
-// Multer storage
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UP),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) =>
+    cb(null, `${Date.now()}-${file.originalname}`)
 });
+
+// 🔥 THIS must be multer itself
 const upload = multer({ storage });
 
-// ✅ File upload route
-router.post('/', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file' });
-
-  res.json({
-    url: `${req.protocol}://${req.get('host')}/upload/${req.file.filename}`,
-    filename: req.file.filename
-  });
-});
-
-module.exports = router;
-
+// ✅ EXPORT MULTER DIRECTLY
+module.exports = upload;
