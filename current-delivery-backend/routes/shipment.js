@@ -9,23 +9,9 @@ const Invoice = require('../model/Invoice');
 
 const authMiddleware = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
-
+const upload = require('../upload');
 const { generateInvoicePDF } = require('../utilis/pdf');
 const sendInvoiceEmail = require('./email').sendInvoiceEmail;
-
-// ====================
-// UPLOAD CONFIG
-// ====================
-const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, UPLOADS_DIR),
-  filename: (_, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
-});
-const upload = multer({ storage });
 
 
 // ====================
@@ -36,9 +22,11 @@ router.post(
   '/',
   authMiddleware,
   isAdmin,
-  upload.single('packageImage'),
+  upload.single('file'),
   async (req, res) => {
     try {
+       console.log('FILE:', req.file); // ✅ debug
+      console.log('BODY:', req.body);
       // 🔹 Parse JSON fields from FormData
       const sender =
         typeof req.body.sender === 'string'
@@ -69,9 +57,7 @@ router.post(
         expectedDeliveryDate
       } = req.body;
 
-      const imageUrl = req.file
-  ? `${req.protocol}://${req.get('host')}/upload/${req.file.filename}`
-  : undefined;
+      const imageUrl = req.file ? `${req.protocol}://${req.get('host')}/upload/${req.file.filename}` : undefined;
       // 🔹 Tracking code
       const trackingCode = `CD${Date.now().toString(36).toUpperCase()}`;
 
@@ -87,6 +73,7 @@ router.post(
           serviceType: packageType,
           quantity: Number(quantity) || 1,
           imageUrl
+          
         },
 
         shippingService,
@@ -154,6 +141,8 @@ router.post(
     }
   }
 );
+
+
 
 // ====================
 // TRACK SHIPMENT (PUBLIC)
