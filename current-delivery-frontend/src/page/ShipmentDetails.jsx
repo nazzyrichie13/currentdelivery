@@ -148,19 +148,21 @@ export default function ShipmentDetails() {
   <div className="space-y-3 text-sm sm:text-base">
 
     <div>
-      <h4 className="font-semibold">Sender</h4>
+      <h4 className="font-semibold text-green-950">Sender</h4>
       <p>{shipment.sender.name}</p>
       <p className="text-gray-500">{shipment.sender.address}</p>
     </div>
 
     <div>
-      <h4 className="font-semibold">Recipient</h4>
+      <h4 className="font-semibold text-green-950">Recipient</h4>
       <p>{shipment.recipient.name}</p>
+      <p className="text-gray-500">{shipment.recipient.email}</p>
+       <p className="text-gray-500">{shipment.recipient.phone }</p>
       <p className="text-gray-500">{shipment.recipient.address}</p>
     </div>
 
     <div>
-      <h4 className="font-semibold">Package Details</h4>
+      <h4 className="font-semibold text-green-950">Package Details</h4>
       <p><strong> Package Description:</strong> {shipment.package.description}</p>
       <p><strong>Package Service Type:</strong> {shipment.package.serviceType}</p>
       <p><strong> Package quantity:</strong> {shipment.package.quantity}</p>
@@ -169,16 +171,16 @@ export default function ShipmentDetails() {
     </div>
 
     <div>
-      <h4 className="font-semibold">Shipping Info</h4>
+      <h4 className="font-semibold text-green-950">Shipping Info</h4>
       <p><strong>Service:</strong> {shipment.shippingService}</p>
       <p>
-        <strong>Expected Delivery:</strong>{' '}
+        <strong className='text-blue-950'>Expected Delivery:</strong>{' '}
         {shipment.expectedDeliveryDate
           ? new Date(shipment.expectedDeliveryDate).toDateString()
           : 'N/A'}
       </p>
       <p>
-        <strong>Confirmed Delivery:</strong>{' '}
+        <strong className='text-green-400'>Confirmed Delivery:</strong>{' '}
         {shipment.deliveryDate
           ? new Date(shipment.deliveryDate).toDateString()
           : 'Not yet'}
@@ -186,12 +188,12 @@ export default function ShipmentDetails() {
     </div>
 
     <div>
-      <h4 className="font-semibold"> Package Destination</h4>
+      <h4 className="font-semibold text-green-950"> Package Destination</h4>
       <p>{shipment.destination?.text || 'N/A'}</p>
     </div>
 
     <div>
-      <h4 className="font-semibold">Current Location</h4>
+      <h4 className="font-semibold text-green-950">Current Location</h4>
       <p>{shipment.location?.text || 'N/A'}</p>
       <p className="text-xs text-gray-500">
         Last updated:{' '}
@@ -208,7 +210,7 @@ export default function ShipmentDetails() {
     {/* 📦 Package Image */}
     {shipment.package.imageUrl && (
       <div>
-        <h4 className="font-semibold text-sm mb-1">Package Image</h4>
+        <h4 className="font-semibold text-sm mb-1 text-green-950">Package Image</h4>
         <img
           src={shipment.package.imageUrl}
           alt="Package"
@@ -236,7 +238,7 @@ export default function ShipmentDetails() {
             ]}
           >
             <Popup>
-              <strong>Status:</strong> {shipment.status}<br />
+              <strong className='text-red-700'>Status:</strong> {shipment.status}<br />
               {shipment.location.text}
             </Popup>
           </Marker>
