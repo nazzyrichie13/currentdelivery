@@ -41,7 +41,10 @@ export default function CreateShipment() {
     fd.append('expectedDeliveryDate', expectedDeliveryDate);
 
     // destination
-    fd.append('destination', destination);
+    fd.append(
+  'destination',
+  JSON.stringify({ text: destination })
+);
 
     fd.append('price', price);
     if (file) fd.append('packageImage', file);
