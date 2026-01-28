@@ -70,7 +70,7 @@ router.post(
       } = req.body;
 
       // 🔹 Image
-      const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      const imageUrl = req.file ? `/upload/${req.file.filename}` : null;
 
       // 🔹 Tracking code
       const trackingCode = `CD${Date.now().toString(36).toUpperCase()}`;
