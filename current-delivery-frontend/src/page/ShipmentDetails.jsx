@@ -97,13 +97,15 @@ export default function ShipmentDetails() {
   try {
     const res = await API.get(
       `/api/invoice/download/${shipment.trackingCode}`,
-      { responseType: 'blob' }
+      { responseType: 'blob' } // Important for PDFs
     );
 
+    // Create a blob URL for the PDF
     const url = window.URL.createObjectURL(
       new Blob([res.data], { type: 'application/pdf' })
     );
 
+    // Create a temporary link to trigger download
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute(
@@ -113,10 +115,16 @@ export default function ShipmentDetails() {
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    // Free memory
+    window.URL.revokeObjectURL(url);
+
   } catch (err) {
-    alert('Invoice not available',err);
+    console.error('Invoice download failed:', err);
+    alert('Invoice not available: ' + (err.response?.data?.error || err.message));
   }
 };
+
 
 
   return (
