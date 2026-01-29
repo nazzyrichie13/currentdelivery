@@ -15,6 +15,7 @@ return (
 <Link to="/admin/shipments/edit/:id" className="p-4 bg-white rounded shadow">Edit shipment</Link>
 <Link to="/editbytrack" className="p-4 bg-white rounded shadow">Edit with TrackingCode</Link>
 <Link to="/reschdulecard" className="p-4 bg-white rounded shadow">RescheduleRequest</Link>
+<Link to="/adminchat" className="p-4 bg-white rounded shadow">chatRoom</Link>
 </div>
 </div>
 </div>
