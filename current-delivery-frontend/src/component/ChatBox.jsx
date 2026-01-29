@@ -122,7 +122,9 @@ export default function ClientChatBox() {
             Send
           </button>
         </div>
+        <p className="font-serif font-light text-blue-950">Your can also chat us on WhatsApp click here ! <a href="https://wa.me/16195680175"></a></p>
       </div>
+
     </>
   );
 }
