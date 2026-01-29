@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import { PhoneCallIcon } from "lucide-react";
 
 const socket = io(import.meta.env.VITE_API_URL || "http://localhost:4000");
 
@@ -122,7 +123,7 @@ export default function ClientChatBox() {
             Send
           </button>
         </div>
-        <p className="font-serif font-light text-blue-950">Your can also chat us on WhatsApp click here ! <a href="https://wa.me/16195680175" className="font-bold text-green-500">whatsapp</a></p>
+        <p className="font-serif font-light text-blue-950">Your can also chat us on WhatsApp click here ! <a href="https://wa.me/16195680175" className="text-green-700"><PhoneCallIcon className="font-bold text-green-500 w-7 h-7 rounded-full border-2 p-1 " />WhatsApp</a></p>
       </div>
 
     </>
