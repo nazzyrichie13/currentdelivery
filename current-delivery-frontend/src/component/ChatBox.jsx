@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import WhatsAppIcon from "./Whatsapp";
+
 const socket = io(import.meta.env.VITE_API_URL || "http://localhost:4000");
 
 export default function ClientChatBox() {
@@ -122,7 +122,7 @@ export default function ClientChatBox() {
             Send
           </button>
         </div>
-        <p className="font-serif font-light text-blue-950">Your can also chat us on WhatsApp click here ! <a href="https://wa.me/16195680175"><WhatsAppIcon/></a></p>
+        <p className="font-serif font-light text-blue-950">Your can also chat us on WhatsApp click here ! <a href="https://wa.me/16195680175" className="font-bold text-green-500">whatsapp</a></p>
       </div>
 
     </>
