@@ -84,6 +84,9 @@ export default function EditShipment() {
     return <div className="p-6 text-center text-red-500">{msg || 'Shipment not found.'}</div>;
   }
 
+  
+
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white mt-6 rounded shadow">
       <h2 className="text-xl font-bold mb-4">Edit Shipment Status & Location</h2>

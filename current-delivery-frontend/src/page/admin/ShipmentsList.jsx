@@ -3,9 +3,6 @@ import API from '../../api';
 
 import { Link } from 'react-router-dom';
 
-
-
-
 export default function ShipmentsList() {
   const [list, setList] = useState([]);
   const [msg, setMsg] = useState('');
