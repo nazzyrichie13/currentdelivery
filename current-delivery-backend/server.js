@@ -69,30 +69,88 @@ mongoose
 /* =======================
    SOCKET.IO
 ======================= */
-io.on('connection', socket => {
-  console.log('Socket connected', socket.id);
+let activeRooms = new Set();
 
-  socket.on('join_room', ({ room }) => socket.join(room));
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
 
-  socket.on('location_update', async payload => {
-    const Shipment = require('./models/Shipment');
-    const s = await Shipment.findOneAndUpdate(
-      { trackingCode: payload.trackingCode },
-      {
-        location: { coords: payload.coords, updatedAt: new Date() },
-        $push: {
-          history: {
-            status: payload.status || 'in_transit',
-            location: payload.coords,
-            timestamp: new Date()
-          }
-        }
-      },
-      { new: true }
-    );
-    io.to(`tracking_${payload.trackingCode}`).emit('location_update', s);
+  /** ==========================
+   * Chat logic
+   * ========================== */
+
+  // Client or Admin joins a room
+  socket.on("join_room", ({ room, isAdmin }) => {
+    socket.join(room);
+    console.log(`${isAdmin ? "Admin" : "Client"} joined room: ${room}`);
+
+    if (!isAdmin) {
+      activeRooms.add(room);
+      io.emit("update_rooms", Array.from(activeRooms));
+    }
+  });
+
+  // Admin dashboard joins
+  socket.on("admin_join", () => {
+    socket.emit("update_rooms", Array.from(activeRooms));
+  });
+
+  // Send chat messages
+  socket.on("chat_message", (msg) => {
+    const { room, isAdmin } = msg;
+
+    // Broadcast to everyone in the room
+    io.to(room).emit("chat_message", msg);
+
+    // Notify admin dashboard if message is from a client
+    if (!isAdmin) {
+      io.emit("chat_message", msg);
+    }
+  });
+
+  // Handle disconnects
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
+
+    // Clean up empty rooms
+    activeRooms.forEach((room) => {
+      const roomSockets = io.sockets.adapter.rooms.get(room);
+      if (!roomSockets || roomSockets.size === 0) {
+        activeRooms.delete(room);
+      }
+    });
+
+    // Update admin dashboards
+    io.emit("update_rooms", Array.from(activeRooms));
+  });
+
+  /** ==========================
+   * Shipment tracking logic (unchanged)
+   * ========================== */
+  socket.on("location_update", async (payload) => {
+    const Shipment = require("./models/Shipment");
+    try {
+      const s = await Shipment.findOneAndUpdate(
+        { trackingCode: payload.trackingCode },
+        {
+          location: { coords: payload.coords, updatedAt: new Date() },
+          $push: {
+            history: {
+              status: payload.status || "in_transit",
+              location: payload.coords,
+              timestamp: new Date(),
+            },
+          },
+        },
+        { new: true }
+      );
+      io.to(`tracking_${payload.trackingCode}`).emit("location_update", s);
+    } catch (err) {
+      console.error("Error updating shipment location:", err);
+    }
   });
 });
+
+
 
 /* =======================
    START SERVER
