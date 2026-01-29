@@ -1,4 +1,5 @@
-import axios from "axios";
+
+    import axios from "axios";
 import { useState } from "react";
 
 function AdminRescheduleRequestCard({ trackingCode, request, onRefresh }) {
@@ -8,7 +9,7 @@ function AdminRescheduleRequestCard({ trackingCode, request, onRefresh }) {
     setLoading(true);
     try {
       await axios.patch(
-        `/api/shipments/track/${trackingCode}/reschedule-request/${request._id}`,
+        `/api/shipments/track/${trackingCode}/reschedule-request/${request?._id}`,
         { action: "approve" },
         { withCredentials: true }
       );
@@ -28,7 +29,7 @@ function AdminRescheduleRequestCard({ trackingCode, request, onRefresh }) {
     setLoading(true);
     try {
       await axios.patch(
-        `/api/shipments/track/${trackingCode}/reschedule-request/${request._id}`,
+        `/api/shipments/track/${trackingCode}/reschedule-request/${request?._id}`,
         {
           action: "reject",
           adminNote
@@ -44,36 +45,28 @@ function AdminRescheduleRequestCard({ trackingCode, request, onRefresh }) {
     }
   };
 
+  if (!request) return null; // prevent crash if request is undefined
+
   return (
     <div style={styles.card}>
-      <p><b>Requested Date:</b> {new Date(request.requestedDate).toDateString()}</p>
-      <p><b>Reason:</b> {request.reason}</p>
-      <p><b>Status:</b> {request.status}</p>
+      <p>
+        <b>Requested Date:</b>{" "}
+        {request.requestedDate ? new Date(request.requestedDate).toDateString() : "N/A"}
+      </p>
+      <p><b>Reason:</b> {request.reason || "No reason provided"}</p>
+      <p><b>Status:</b> {request.status || "Unknown"}</p>
 
-      {request.status === "pending" && (
+      {request.status === "pending" ? (
         <div style={styles.actions}>
-          <button
-            onClick={handleApprove}
-            disabled={loading}
-            style={styles.approve}
-          >
+          <button onClick={handleApprove} disabled={loading} style={styles.approve}>
             ✅ Approve
           </button>
-
-          <button
-            onClick={handleReject}
-            disabled={loading}
-            style={styles.reject}
-          >
+          <button onClick={handleReject} disabled={loading} style={styles.reject}>
             ❌ Reject
           </button>
         </div>
-      )}
-
-      {request.status !== "pending" && (
-        <p style={styles.done}>
-          {request.status.toUpperCase()}
-        </p>
+      ) : (
+        <p style={styles.done}>{(request.status || "unknown").toUpperCase()}</p>
       )}
     </div>
   );

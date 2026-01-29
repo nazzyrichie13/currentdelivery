@@ -7,7 +7,6 @@ import CreateShipment from './page/admin/CreateShipment';
 import ShipmentsList from './page/admin/ShipmentsList';
 import TrackShipment from './page/TrackShipment';
 import ShipmentDetails from './page/ShipmentDetails';
-import PrivateRoute from './component/PrivateRoute';
 import Contact from './page/Contact';
 import Faq from './page/Faq';
 import AdminSignup from './page/admin/AdminSignUp';
@@ -25,10 +24,8 @@ import AdminLogin from './page/admin/AdminLogin';
 import EditByTrackingCode from './page/admin/EditByTrackingCode';
 import RescheduleByTracking from './page/RescheduleByTracking';
 import AdminRescheduleRequestCard from './page/admin/AdminRescheduleRequestCard';
-
-
-
-
+import AdminChatDashboard from './page/admin/AdminChatDashboard';
+import ClientChatBox from './component/ChatBox'
 
 
 export default function App(){
@@ -52,12 +49,13 @@ return (
 <Route path="/sea-freight" element={<SeaFreight />} />
 <Route path="/vehicle-delivery" element={<VehicleDelivery />} />
 <Route path="/home-delivery" element={<HomeDelivery />} />
-
+<Route path="/adminchat" element={<AdminChatDashboard />} />
 <Route path="/signup" element={<AdminSignup />} />
 <Route path="/admin/login" element={<AdminLogin />} />
 <Route path="/admin" element={  <AdminDashboard />}/>
 <Route path="/reschdule" element={  <RescheduleByTracking />}/>
 <Route path="/reschdulecard" element={  <AdminRescheduleRequestCard />}/>
+<Route path="/chat" element={<ClientChatBox />} />
 
 
 
