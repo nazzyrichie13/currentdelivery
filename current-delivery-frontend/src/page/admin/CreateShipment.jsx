@@ -46,7 +46,13 @@ export default function CreateShipmentWithInvoice() {
 
 
     try {
-      const res = await API.post('/api/shipment', fd);
+      const token = localStorage.getItem('token');
+
+const res = await API.post('/api/shipment', fd, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       setMsg('Shipment created: ' + res.data.shipment.trackingCode);
       setCreatedShipment(res.data.shipment);
     } catch (err) {
