@@ -38,7 +38,8 @@ const baseTranslations = {
   "Package Image": "Package Image",
   "No location yet": "No location yet",
   "Chat": "Chat",
-  "Do you want to reschedule delivery Date? click here!!!": "Do you want to reschedule delivery Date? click here!!!",
+  "Do you want to reschedule delivery Date? click here!!!":
+    "Do you want to reschedule delivery Date? click here!!!",
   "N/A": "N/A",
   "Not yet": "Not yet",
   "Package": "Package",
@@ -53,9 +54,95 @@ const baseTranslations = {
   "delivered": "Delivered",
   "cancelled": "Cancelled",
 
-  // Home Page / UI
+  // =========================
+  // HOME PAGE (MATCHED)
+  // =========================
+
+  "We ship from the USA to countries worldwide, and from other countries to the USA.":
+    "We ship from the USA to countries worldwide, and from other countries to the USA.",
+
+  "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve":
+    "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve",
+
+  "Sign Up Today": "Sign Up Today",
+
+  "You Deserve A Shipping Provider You Can Trust":
+    "You Deserve A Shipping Provider You Can Trust",
+
+  "Reasons to Trust Our Delivery Service":
+    "Reasons to Trust Our Delivery Service",
+
+  "Reliable & On-Time Delivery":
+    "Reliable & On-Time Delivery",
+
+  "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.":
+    "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.",
+
+  "Real-Time Shipment Tracking":
+    "Real-Time Shipment Tracking",
+
+  "Track your delivery at every stage, from pickup to final destination.":
+    "Track your delivery at every stage, from pickup to final destination.",
+
+  "Secure Package Handling":
+    "Secure Package Handling",
+
+  "Your items are handled with care and protected throughout the delivery process.":
+    "Your items are handled with care and protected throughout the delivery process.",
+
+  "International Shipping Expertise":
+    "International Shipping Expertise",
+
+  "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.":
+    "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.",
+
+  "Transparent Pricing":
+    "Transparent Pricing",
+
+  "No hidden fees—clear and honest shipping costs you can trust.":
+    "No hidden fees—clear and honest shipping costs you can trust.",
+
+  "Dedicated Customer Support":
+    "Dedicated Customer Support",
+
+  "Our support team is always available to assist you before, during, and after delivery.":
+    "Our support team is always available to assist you before, during, and after delivery.",
+
+  "Trusted by Many Customers":
+    "Trusted by Many Customers",
+
+  "Our growing customer base is built on consistency, professionalism, and satisfaction.":
+    "Our growing customer base is built on consistency, professionalism, and satisfaction.",
+
+  "Shipping To & From Any Country Should Be More Reliable":
+    "Shipping To & From Any Country Should Be More Reliable",
+
+  "How Does It Work?": "How Does It Work?",
+
+  "Step 1.": "Step 1.",
+  "sign up today! it's simple": "sign up today! it's simple",
+
+  "Step 2.": "Step 2.",
+  "Get A Free U.S. Address": "Get A Free U.S. Address",
+
+  "Step 3.": "Step 3.",
+  "Ship To & From WorldWide With Confidence":
+    "Ship To & From WorldWide With Confidence",
+
+  "Core Services": "Core Services",
+
+  "Air Freight": "Air Freight",
+  "Sea Freight": "Sea Freight",
+  "VehicleDelivery": "VehicleDelivery",
+  "Home Delivery": "Home Delivery",
+
+  "Ship, Send, & Receive With Confidence":
+    "Ship, Send, & Receive With Confidence",
+
+  // Misc
   "Welcome Banner": "Welcome Banner"
 };
+
 
 // OpenAI Backend for dynamic translation
 class OpenAIBackend {
