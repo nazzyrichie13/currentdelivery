@@ -204,16 +204,10 @@ export default function ShipmentDetails() {
           </div>
 
           {/* Right Side: Package Image + Map */}
-          <div className="space-y-3">
-            {shipment.package.imageUrl && (
-              <div>
-                <h4 className="font-semibold text-sm mb-1 text-blue-300">{t('Package Image')}</h4>
-                <img
-                  src={shipment.package.imageUrl}
-                  alt={t('Package')}
-                  className="w-full h-48 object-cover rounded border"
-                />
-              </div>
+          <div className="space-y-3"> {/* 📦 Package Image */} 
+            {shipment.package.imageUrl && ( <div> <h4 className="font-semibold text-sm mb-1 text-blue-300">Package Image</h4> 
+            <img src={shipment.package.imageUrl} alt="Package" className="w-full h-48 object-cover rounded border" /> 
+            </div>
             )}
 
             {/* Map */}
