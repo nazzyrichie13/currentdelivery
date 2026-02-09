@@ -23,6 +23,7 @@ export default function Home (){
 
 return(
     <div className="p-2 overflow-hidden   md:p-0">
+      <LanguageSwitcher />
   <div
   className="w-full h-dvh bg-cover bg-center"
   style={{ backgroundImage: `url(${chatBg})` }}
@@ -170,7 +171,7 @@ return(
           <Link to={'/register'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
             
         
- <LanguageSwitcher />
+ 
     </div>
     <ChatBox/>
     

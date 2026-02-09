@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import API from '../api';
@@ -222,18 +220,22 @@ export default function ShipmentDetails() {
             <div className="h-64 sm:h-80 md:h-96">
               {shipment.location?.coords ? (
                 <MapContainer
-                  center={[shipment.location.coords.lat, shipment.location.coords.lng]}
-                  zoom={13}
-                  className="leaflet-container w-full h-full rounded"
-                >
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
-                    <Popup>
-                      <strong className='text-red-700'>{t('Status')}:</strong> {shipment.status}<br />
-                      {shipment.location.text}
-                    </Popup>
-                  </Marker>
-                </MapContainer>
+  center={[shipment.location.coords.lat, shipment.location.coords.lng]}
+  zoom={13}
+  className="leaflet-container w-full h-full rounded"
+>
+  <TileLayer 
+    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" // English map
+    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  />
+  <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
+    <Popup>
+      <strong className='text-red-700'>{t('Status')}:</strong> {shipment.status}<br />
+      {shipment.location.text}
+    </Popup>
+  </Marker>
+</MapContainer>
+
               ) : (
                 <div className="p-4 text-sm text-gray-500 border rounded">{t('No location yet')}</div>
               )}
