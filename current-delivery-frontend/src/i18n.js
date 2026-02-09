@@ -5,15 +5,20 @@ import axios from "axios";
 // Base English keys
 const baseTranslations = {
   "Create Shipment": "Create Shipment",
-  "Tracking Code": "Tracking Code",
-  "Track": "Track",
+  "Track Shipment": "Track Shipment",
   "Download Invoice": "Download Invoice",
-  "Shipment not found.": "Shipment not found.",
-  "Failed to load shipment.": "Failed to load shipment.",
-  "Loading shipment…": "Loading shipment…",
+  "Welcome to ShipTrack": "Welcome to ShipTrack",
+  "Track your shipments quickly and easily": "Track your shipments quickly and easily",
+  "Enter Tracking Code": "Enter Tracking Code",
+  "Submit": "Submit",
+  "Recent Shipments": "Recent Shipments",
+  "No shipments found": "No shipments found",
   "Shipment": "Shipment",
   "Status": "Status",
   "Delivery Progress": "Delivery Progress",
+  "Shipment not found.": "Shipment not found.",
+  "Failed to load shipment.": "Failed to load shipment.",
+  "Loading shipment…": "Loading shipment…",
   "Shipment is currently on hold.": "Shipment is currently on hold.",
   "Sender Information": "Sender Information",
   "Recipient": "Recipient",
@@ -36,10 +41,23 @@ const baseTranslations = {
   "Do you want to reschedule delivery Date? click here!!!": "Do you want to reschedule delivery Date? click here!!!",
   "N/A": "N/A",
   "Not yet": "Not yet",
-  "Package": "Package"
+  "Package": "Package",
+
+  // Status Labels
+  "created": "Created",
+  "scheduled": "Scheduled",
+  "rescheduled": "Rescheduled",
+  "in_transit": "In Transit",
+  "on_hold": "On Hold",
+  "out_for_delivery": "Out for Delivery",
+  "delivered": "Delivered",
+  "cancelled": "Cancelled",
+
+  // Home Page / UI
+  "Welcome Banner": "Welcome Banner"
 };
 
-// Custom backend to fetch translations from OpenAI dynamically
+// OpenAI Backend for dynamic translation
 class OpenAIBackend {
   type = "backend";
 
@@ -47,14 +65,18 @@ class OpenAIBackend {
     try {
       const translations = {};
 
-      // Loop through keys and get translations
-      for (const key of Object.keys(baseTranslations)) {
-        const prompt = `Translate this into ${language}: "${baseTranslations[key]}"`;
+      // Fetch all keys in parallel
+      await Promise.all(
+        Object.keys(baseTranslations).map(async (key) => {
+          const response = await axios.post("/api/translate", {
+            text: baseTranslations[key],
+            targetLang: language
+          });
 
-        // Call your backend API that communicates with OpenAI
-        const response = await axios.post("/api/translate", { text: baseTranslations[key], targetLang: language });
-        translations[key] = response.data.translation || baseTranslations[key];
-      }
+          // fallback to English if translation fails
+          translations[key] = response.data?.translation || baseTranslations[key];
+        })
+      );
 
       callback(null, translations);
     } catch (error) {
@@ -64,9 +86,10 @@ class OpenAIBackend {
   }
 }
 
+// Initialize i18next
 i18n
   .use(initReactI18next)
-  .use(OpenAIBackend)
+  .use(new OpenAIBackend()) // <-- instantiate class!
   .init({
     lng: "en",
     fallbackLng: "en",
@@ -75,6 +98,7 @@ i18n
     ns: ["translation"],
     defaultNS: "translation",
     react: { useSuspense: true },
+    saveMissing: true // optional: logs missing keys
   });
 
 export default i18n;
