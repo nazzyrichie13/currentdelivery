@@ -18,14 +18,14 @@ export default function CreateShipmentWithInvoice() {
   const [msg, setMsg] = useState('');
   const [createdShipment, setCreatedShipment] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [invoiceLoading, setInvoiceLoading] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);  
   const [errorMsg, setErrorMsg] = useState('');
 
   // Create Shipment
   const submitShipment = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMsg('');
+    setMsg('');    
     setErrorMsg('');
 
     const fd = new FormData();
@@ -42,7 +42,7 @@ export default function CreateShipmentWithInvoice() {
   JSON.stringify({ text: destination })
 );
     fd.append('price', price);
-    if (file) fd.append('file', file); // <-- must be "file"
+    if (file) fd.append('file', file); 
 
 
     try {
@@ -60,7 +60,7 @@ const res = await API.post('/api/shipment', fd, {
       setErrorMsg(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
-    }
+    }  
   };
 
   // Download Invoice
@@ -72,7 +72,7 @@ const res = await API.post('/api/shipment', fd, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(
-        new Blob([res.data], { type: 'application/pdf' })
+        new Blob([res.data], { type: 'application/pdf' }) 
       );
       const link = document.createElement('a');
       link.href = url;

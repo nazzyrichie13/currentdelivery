@@ -2,6 +2,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from './Logo';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Nav({ admin = false }) {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ export default function Nav({ admin = false }) {
         <Link to="/about">About Us</Link>
         <Link to="/faq">FAQ</Link>
         <Link to="/blog">Blog</Link>
+         <LanguageSwitcher />
         {!admin && (
           <Link
             to="/track"

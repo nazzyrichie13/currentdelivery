@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Slider from "../component/Slider"
 import ship from "../assets/ship.jpg"
 
+
 import ChatBox from "../component/ChatBox"
 import chatBg from '../assets/road.jpg';
 import TrackShipment from "./TrackShipment";
@@ -15,7 +16,7 @@ import photo3 from '../assets/photo3.jpg'
 import { Contact2,LocationEditIcon,BoxIcon } from "lucide-react";
 import { ArrowRightIcon } from "lucide-react";
 import CustomerReviews from "../component/Ratings";
-
+import LanguageSwitcher from "../component/LanguageSwitcher";
 export default function Home (){
 
 
@@ -169,7 +170,7 @@ return(
           <Link to={'/register'} className="bg-blue-600 text-white p-2 rounded-b-sm  rounded-e-xs font-extrabold w-44 text-center">Sign Up Today</Link>
             
         
-
+ <LanguageSwitcher />
     </div>
     <ChatBox/>
     

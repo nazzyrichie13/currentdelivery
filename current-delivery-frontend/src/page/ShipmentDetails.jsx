@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import API from '../api';
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import io from 'socket.io-client';
 
+
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import API from '../api';
 import ChatBox from '../component/ChatBox';
+import 'leaflet/dist/leaflet.css';
 import Barcode from 'react-barcode';
-import { Link } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../component/LanguageSwitcher';
+
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 function getShipmentProgress(status) {
@@ -19,12 +22,13 @@ function getShipmentProgress(status) {
     on_hold: 50,
     out_for_delivery: 80,
     delivered: 100,
-    cancelled: 0
+    cancelled: 0,
   };
   return map[status] ?? 0;
 }
 
 export default function ShipmentDetails() {
+  const { t } = useTranslation(); // for translations
   const { trackingCode } = useParams();
   const [shipment, setShipment] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,23 +39,22 @@ export default function ShipmentDetails() {
 
     const fetchShipment = async () => {
       try {
-        // Force uppercase to match DB tracking code
         const code = trackingCode.toUpperCase();
         const res = await API.get(`/api/shipment/track/${code}`);
 
         if (!mounted) return;
 
         if (!res.data.shipment) {
-          setErrorMsg('Shipment not found.');
+          setErrorMsg(t('Shipment not found.'));
         } else {
           setShipment(res.data.shipment);
         }
       } catch (err) {
         console.error('Error fetching shipment:', err.response?.data || err.message);
         if (err.response?.status === 404) {
-          setErrorMsg('Shipment not found.');
+          setErrorMsg(t('Shipment not found.'));
         } else {
-          setErrorMsg('Failed to load shipment.');
+          setErrorMsg(t('Failed to load shipment.'));
         }
       } finally {
         setLoading(false);
@@ -72,10 +75,10 @@ export default function ShipmentDetails() {
       mounted = false;
       socket.off('location_update');
     };
-  }, [trackingCode]);
+  }, [trackingCode, t]);
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-500">Loading shipment…</div>;
+    return <div className="p-6 text-center text-gray-500">{t('Loading shipment…')}</div>;
   }
 
   if (errorMsg) {
@@ -93,17 +96,14 @@ export default function ShipmentDetails() {
     delivered: 'bg-green-500',
     cancelled: 'bg-red-500'
   };
-  
-
-
 
   return (
     <div>
-      
       <div className="p-4 sm:p-6 max-w-4xl mx-auto bg-white mt-6 rounded shadow">
+        <LanguageSwitcher/>
         {/* Barcode */}
         <div className="relative w-full sm:max-w-xs mx-auto p-4 bg-gray-100 rounded shadow mb-6">
-          <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">Tracking Code</h3>
+          <h3 className="text-center font-semibold mb-4 text-sm sm:text-base">{t('Tracking Code')}</h3>
           <Barcode
             value={shipment.trackingCode}
             format="CODE128"
@@ -116,13 +116,13 @@ export default function ShipmentDetails() {
         </div>
 
         {/* Shipment Info */}
-        <h2 className="text-lg sm:text-xl font-bold">Shipment {shipment.trackingCode}</h2>
-        <p>Status: <strong>{shipment.status}</strong></p>
+        <h2 className="text-lg sm:text-xl font-bold">{t('Shipment')} {shipment.trackingCode}</h2>
+        <p>{t('Status')}: <strong>{shipment.status}</strong></p>
 
         {/* Progress Bar */}
         <div className="mt-4">
           <div className="flex justify-between text-sm mb-1">
-            <span className="font-medium">Delivery Progress</span>
+            <span className="font-medium">{t('Delivery Progress')}</span>
             <span className="text-gray-600">{progress}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
@@ -135,133 +135,123 @@ export default function ShipmentDetails() {
 
         {shipment.status === 'on_hold' && (
           <div className="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">
-            🚧 Shipment is currently on hold.
+            🚧 {t('Shipment is currently on hold.')}
           </div>
         )}
 
         {/* Sender / Recipient / Package */}
-        
-               {/* Sender / Recipient / Package */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <div className="space-y-3 text-sm sm:text-base">
+            {/* Sender */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Sender Information')}</h4>
+              <p className="text-gray-500">{shipment.sender.name}</p>
+              <p className="text-gray-500">{shipment.sender.email}</p>
+              <p className="text-gray-500">{shipment.sender.address}</p>
+            </div>
 
-  {/* LEFT: DETAILS */}
-  <div className="space-y-3 text-sm sm:text-base">
+            {/* Recipient */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Recipient')}</h4>
+              <p className="text-gray-500">{shipment.recipient.name}</p>
+              <p className="text-gray-500">{shipment.recipient.email}</p>
+              <p className="text-gray-500">{shipment.recipient.phone}</p>
+              <p className="text-gray-500">{shipment.recipient.address}</p>
+            </div>
 
-    <div>
-      <h4 className="font-semibold text-blue-300">Sender infomation</h4>
-      <p className="text-gray-500">{shipment.sender.name}</p>
-      <p className="text-gray-500">{shipment.sender.email}</p>
-      <p className="text-gray-500">{shipment.sender.address}</p>
-    </div>
+            {/* Package */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Package Details')}</h4>
+              <p className="text-gray-500"><strong>{t('Package Description')}:</strong> {shipment.package.description}</p>
+              <p className="text-gray-500"><strong>{t('Package Service Type')}:</strong> {shipment.package.serviceType}</p>
+              <p className="text-gray-500"><strong>{t('Package Quantity')}:</strong> {shipment.package.quantity}</p>
+              <p className="text-gray-500"><strong>{t('Package Weight')}:</strong> {shipment.package.weight} kg</p>
+              <p className="text-gray-500"><strong>{t('Shipping Cost')}:</strong> ${shipment.price}</p>
+            </div>
 
-    <div>
-      <h4 className="font-semibold text-blue-300">Recipient </h4>
-      <p className="text-gray-500">{shipment.recipient.name}</p>
-      <p className="text-gray-500">{shipment.recipient.email}</p>
-       <p className="text-gray-500">{shipment.recipient.phone }</p>
-      <p className="text-gray-500">{shipment.recipient.address}</p>
-    </div>
+            {/* Shipping Details */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Shipping Details')}</h4>
+              <p className="text-gray-500"><strong>{t('Service')}:</strong> {shipment.shippingService}</p>
+              <p className="text-gray-500">
+                <strong className='text-blue-950'>{t('Expected Delivery')}:</strong>{' '}
+                {shipment.expectedDeliveryDate
+                  ? new Date(shipment.expectedDeliveryDate).toDateString()
+                  : t('N/A')}
+              </p>
+              <p className="text-gray-500">
+                <strong className='text-green-400'>{t('Confirmed Delivery')}:</strong>{' '}
+                {shipment.deliveryDate
+                  ? new Date(shipment.deliveryDate).toDateString()
+                  : t('Not yet')}
+              </p>
+            </div>
 
-    <div>
-      <h4 className="font-semibold text-blue-300">Package Details</h4>
-      <p className="text-gray-500"><strong> Package Description:</strong> {shipment.package.description}</p>
-      <p className="text-gray-500"><strong>Package Service Type:</strong> {shipment.package.serviceType}</p>
-      <p className="text-gray-500"><strong> Package quantity:</strong> {shipment.package.quantity}</p>
-      <p className="text-gray-500"><strong> Package Weight:</strong> {shipment.package.weight} kg</p>
-      <p className="text-gray-500"><strong>Shipping Cost:</strong> ${shipment.price}</p>
-    </div>
+            {/* Package Destination */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Package Destination')}</h4>
+              <p className="text-gray-500">{shipment.destination?.text || t('N/A')}</p>
+            </div>
 
-    <div>
-      <h4 className="font-semibold text-blue-300">Shipping Details</h4>
-      <p className="text-gray-500"><strong>Service:</strong> {shipment.shippingService}</p>
-      <p className="text-gray-500">
-        <strong className='text-blue-950'>Expected Delivery:</strong>{' '}
-        {shipment.expectedDeliveryDate
-          ? new Date(shipment.expectedDeliveryDate).toDateString()
-          : 'N/A'}
-      </p>
-      <p className="text-gray-500">
-        <strong className='text-green-400'>Confirmed Delivery:</strong>{' '}
-        {shipment.deliveryDate
-          ? new Date(shipment.deliveryDate).toDateString()
-          : 'Not yet'}
-      </p>
-    </div>
+            {/* Current Location */}
+            <div>
+              <h4 className="font-semibold text-blue-300">{t('Current Location')}</h4>
+              <p className="text-gray-500">{shipment.location?.text || t('N/A')}</p>
+              <p className="text-xs text-gray-500">
+                {t('Last updated')}: {shipment.location?.updatedAt
+                  ? new Date(shipment.location.updatedAt).toLocaleString()
+                  : '—'}
+              </p>
+            </div>
+          </div>
 
-    <div>
-      <h4 className="font-semibold text-blue-300"> Package Destination</h4>
-      <p className="text-gray-500">{shipment.destination?.text || 'N/A'}</p>
-    </div>
+          {/* Right Side: Package Image + Map */}
+          <div className="space-y-3">
+            {shipment.package.imageUrl && (
+              <div>
+                <h4 className="font-semibold text-sm mb-1 text-blue-300">{t('Package Image')}</h4>
+                <img
+                  src={shipment.package.imageUrl}
+                  alt={t('Package')}
+                  className="w-full h-48 object-cover rounded border"
+                />
+              </div>
+            )}
 
-    <div>
-      <h4 className="font-semibold text-blue-300">Current Location</h4>
-      <p className="text-gray-500">{shipment.location?.text || 'N/A'}</p>
-      <p className="text-xs text-gray-500">
-        Last updated:{' '}
-        {shipment.location?.updatedAt
-          ? new Date(shipment.location.updatedAt).toLocaleString()
-          : '—'}
-      </p>
-    </div>
-  </div>
-
-  {/* RIGHT: PACKAGE IMAGE + MAP */}
-  <div className="space-y-3">
-
-    {/* 📦 Package Image */}
-    {shipment.package.imageUrl && (
-      <div>
-        <h4 className="font-semibold text-sm mb-1 text-blue-300">Package Image</h4>
-        <img
-          src={shipment.package.imageUrl}
-          alt="Package"
-          className="w-full h-48 object-cover rounded border"
-        />
-        
-      </div>
-    )}
-
-    {/* 🗺 Map */}
-    <div className="h-64 sm:h-80 md:h-96">
-      {shipment.location?.coords ? (
-        <MapContainer
-          center={[
-            shipment.location.coords.lat,
-            shipment.location.coords.lng
-          ]}
-          zoom={13}
-          className="leaflet-container w-full h-full rounded"
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker
-            position={[
-              shipment.location.coords.lat,
-              shipment.location.coords.lng
-            ]}
-          >
-            <Popup>
-              <strong className='text-red-700'>Status:</strong> {shipment.status}<br />
-              {shipment.location.text}
-            </Popup>
-          </Marker>
-        </MapContainer>
-      ) : (
-        <div className="p-4 text-sm text-gray-500 border rounded">
-          No location yet
+            {/* Map */}
+            <div className="h-64 sm:h-80 md:h-96">
+              {shipment.location?.coords ? (
+                <MapContainer
+                  center={[shipment.location.coords.lat, shipment.location.coords.lng]}
+                  zoom={13}
+                  className="leaflet-container w-full h-full rounded"
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
+                    <Popup>
+                      <strong className='text-red-700'>{t('Status')}:</strong> {shipment.status}<br />
+                      {shipment.location.text}
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              ) : (
+                <div className="p-4 text-sm text-gray-500 border rounded">{t('No location yet')}</div>
+              )}
+            </div>
+          </div>
         </div>
-      )}
-    </div>
-  </div>
-</div>
 
-
-        {/* Chat */}
+        {/* Chat Section */}
         <div className="mt-6">
-          <h3 className=" bg-green-500 text-white font-semibold text-base sm:text-lg">Chat</h3>
-          <ChatBox room={`shipment_${shipment._id}`}  />
-          <Link to={'/reschdule'} className='font-bold text-amber-950' >Do you want to reschdule delivery Date? click here!!!</Link>
+          <h3 className="bg-green-500 text-white font-semibold text-base sm:text-lg">{t('Chat')}</h3>
+          <ChatBox room={`shipment_${shipment._id}`} />
+          <Link to={'/reschdule'} className='font-bold text-amber-950'>
+            {t('Do you want to reschedule delivery Date? click here!!!')}
+          </Link>
         </div>
       </div>
     </div>
   );
 }
+
+
