@@ -8,11 +8,13 @@ const { Server } = require('socket.io');
 const path = require('path');
 const http = require('http');
 const cors = require('cors');
+const bodyParser = require( "body-parser");
+const axios = require("axios");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
-
+app.use(bodyParser.json());
 /* =======================
    PATHS
 ======================= */
@@ -56,6 +58,30 @@ app.use((req, res, next) => {
     return next();
   }
   res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+});
+app.post("/api/translate", async (req, res) => {
+  const { text, targetLang } = req.body;
+
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    const prompt = `Translate this text to ${targetLang}: "${text}"`;
+
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0,
+      },
+      { headers: { Authorization: `Bearer ${apiKey}` } }
+    );
+
+    const translation = response.data.choices[0].message.content.trim();
+    res.json({ translation });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ translation: text }); // fallback to English
+  }
 });
 
 /* =======================
