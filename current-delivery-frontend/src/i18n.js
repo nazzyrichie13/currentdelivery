@@ -38,13 +38,10 @@ const baseTranslations = {
   "Package Image": "Package Image",
   "No location yet": "No location yet",
   "Chat": "Chat",
-  "Do you want to reschedule delivery Date? click here!!!":
-    "Do you want to reschedule delivery Date? click here!!!",
+  "Do you want to reschedule delivery Date? click here!!!": "Do you want to reschedule delivery Date? click here!!!",
   "N/A": "N/A",
   "Not yet": "Not yet",
   "Package": "Package",
-
-  // Status Labels
   "created": "Created",
   "scheduled": "Scheduled",
   "rescheduled": "Rescheduled",
@@ -53,122 +50,68 @@ const baseTranslations = {
   "out_for_delivery": "Out for Delivery",
   "delivered": "Delivered",
   "cancelled": "Cancelled",
-
-  // =========================
-  // HOME PAGE (MATCHED)
-  // =========================
-
-  "We ship from the USA to countries worldwide, and from other countries to the USA.":
-    "We ship from the USA to countries worldwide, and from other countries to the USA.",
-
-  "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve":
-    "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve",
-
+  // Home Page & Misc
+  "We ship from the USA to countries worldwide, and from other countries to the USA.": "We ship from the USA to countries worldwide, and from other countries to the USA.",
+  "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve": "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve",
   "Sign Up Today": "Sign Up Today",
-
-  "You Deserve A Shipping Provider You Can Trust":
-    "You Deserve A Shipping Provider You Can Trust",
-
-  "Reasons to Trust Our Delivery Service":
-    "Reasons to Trust Our Delivery Service",
-
-  "Reliable & On-Time Delivery":
-    "Reliable & On-Time Delivery",
-
-  "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.":
-    "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.",
-
-  "Real-Time Shipment Tracking":
-    "Real-Time Shipment Tracking",
-
-  "Track your delivery at every stage, from pickup to final destination.":
-    "Track your delivery at every stage, from pickup to final destination.",
-
-  "Secure Package Handling":
-    "Secure Package Handling",
-
-  "Your items are handled with care and protected throughout the delivery process.":
-    "Your items are handled with care and protected throughout the delivery process.",
-
-  "International Shipping Expertise":
-    "International Shipping Expertise",
-
-  "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.":
-    "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.",
-
-  "Transparent Pricing":
-    "Transparent Pricing",
-
-  "No hidden fees—clear and honest shipping costs you can trust.":
-    "No hidden fees—clear and honest shipping costs you can trust.",
-
-  "Dedicated Customer Support":
-    "Dedicated Customer Support",
-
-  "Our support team is always available to assist you before, during, and after delivery.":
-    "Our support team is always available to assist you before, during, and after delivery.",
-
-  "Trusted by Many Customers":
-    "Trusted by Many Customers",
-
-  "Our growing customer base is built on consistency, professionalism, and satisfaction.":
-    "Our growing customer base is built on consistency, professionalism, and satisfaction.",
-
-  "Shipping To & From Any Country Should Be More Reliable":
-    "Shipping To & From Any Country Should Be More Reliable",
-
+  "You Deserve A Shipping Provider You Can Trust": "You Deserve A Shipping Provider You Can Trust",
+  "Reasons to Trust Our Delivery Service": "Reasons to Trust Our Delivery Service",
+  "Reliable & On-Time Delivery": "Reliable & On-Time Delivery",
+  "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.": "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.",
+  "Real-Time Shipment Tracking": "Real-Time Shipment Tracking",
+  "Track your delivery at every stage, from pickup to final destination.": "Track your delivery at every stage, from pickup to final destination.",
+  "Secure Package Handling": "Secure Package Handling",
+  "Your items are handled with care and protected throughout the delivery process.": "Your items are handled with care and protected throughout the delivery process.",
+  "International Shipping Expertise": "International Shipping Expertise",
+  "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.": "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.",
+  "Transparent Pricing": "Transparent Pricing",
+  "No hidden fees—clear and honest shipping costs you can trust.": "No hidden fees—clear and honest shipping costs you can trust.",
+  "Dedicated Customer Support": "Dedicated Customer Support",
+  "Our support team is always available to assist you before, during, and after delivery.": "Our support team is always available to assist you before, during, and after delivery.",
+  "Trusted by Many Customers": "Trusted by Many Customers",
+  "Our growing customer base is built on consistency, professionalism, and satisfaction.": "Our growing customer base is built on consistency, professionalism, and satisfaction.",
+  "Shipping To & From Any Country Should Be More Reliable": "Shipping To & From Any Country Should Be More Reliable",
   "How Does It Work?": "How Does It Work?",
-
   "Step 1.": "Step 1.",
   "sign up today! it's simple": "sign up today! it's simple",
-
   "Step 2.": "Step 2.",
   "Get A Free U.S. Address": "Get A Free U.S. Address",
-
   "Step 3.": "Step 3.",
-  "Ship To & From WorldWide With Confidence":
-    "Ship To & From WorldWide With Confidence",
-
+  "Ship To & From WorldWide With Confidence": "Ship To & From WorldWide With Confidence",
   "Core Services": "Core Services",
-
   "Air Freight": "Air Freight",
   "Sea Freight": "Sea Freight",
   "VehicleDelivery": "VehicleDelivery",
   "Home Delivery": "Home Delivery",
-
-  "Ship, Send, & Receive With Confidence":
-    "Ship, Send, & Receive With Confidence",
-
-  // Misc
+  "Ship, Send, & Receive With Confidence": "Ship, Send, & Receive With Confidence",
   "Welcome Banner": "Welcome Banner"
 };
 
-
-// OpenAI Backend for dynamic translation
+// OpenAI backend class with batch translation
 class OpenAIBackend {
   type = "backend";
 
   async read(language, namespace, callback) {
     try {
+      // Send all keys to backend in one request
+      const res = await axios.post(`${window.location.origin}/api/translate`, {
+        text: Object.values(baseTranslations), // send all values
+        targetLang: language
+      });
+
+      // Res.data should now be an array of translations in the same order
+      const translationsArray = res.data.translations || [];
+      const keys = Object.keys(baseTranslations);
       const translations = {};
 
-      // Fetch all keys in parallel
-      await Promise.all(
-        Object.keys(baseTranslations).map(async (key) => {
-          const response = await axios.post("/api/translate", {
-            text: baseTranslations[key],
-            targetLang: language
-          });
-
-          // fallback to English if translation fails
-          translations[key] = response.data?.translation || baseTranslations[key];
-        })
-      );
+      keys.forEach((key, i) => {
+        translations[key] = translationsArray[i] || baseTranslations[key];
+      });
 
       callback(null, translations);
     } catch (error) {
-      console.error("Translation error:", error);
-      callback(error, null);
+      console.error("Batch translation error:", error.message);
+      callback(null, baseTranslations); // fallback to English
     }
   }
 }
@@ -176,7 +119,7 @@ class OpenAIBackend {
 // Initialize i18next
 i18n
   .use(initReactI18next)
-  .use(new OpenAIBackend()) // <-- instantiate class!
+  .use(new OpenAIBackend())
   .init({
     lng: "en",
     fallbackLng: "en",
@@ -185,7 +128,7 @@ i18n
     ns: ["translation"],
     defaultNS: "translation",
     react: { useSuspense: true },
-    saveMissing: true // optional: logs missing keys
+    saveMissing: true
   });
 
 export default i18n;
