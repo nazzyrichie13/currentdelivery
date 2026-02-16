@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export default function Nav({ admin = false }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   function logout() {
@@ -50,11 +52,11 @@ export default function Nav({ admin = false }) {
 
       {/* Desktop links */}
       <div className="hidden md:flex gap-4 font-bold">
-        <Link to="/">Home</Link>
-        <Link to="/contact">Contact</Link>
-        <Link to="/about">About Us</Link>
-        <Link to="/faq">FAQ</Link>
-        <Link to="/blog">Blog</Link>
+        <Link to="/">{t('Home')}</Link>
+        <Link to="/contact">{t('Contact')}</Link>
+        <Link to="/about">{t('About Us')}</Link>
+        <Link to="/faq">{t('FAQ')}</Link>
+        <Link to="/blog">{t('Blog')}</Link>
          <LanguageSwitcher />
         {!admin && (
           <Link
@@ -70,15 +72,15 @@ export default function Nav({ admin = false }) {
       <div className="hidden md:flex gap-2 items-center">
         {localStorage.getItem('token') ? (
           <button onClick={logout} className="text-red-500 font-bold">
-            Logout
+           {t('Logout')}
           </button>
         ) : (
           <Link to="/login" className="text-blue-600 font-bold">
-            Login
+           {t(' Login')}
           </Link>
         )}
         <Link to="/signup" className="text-amber-600 font-bold">
-          Admin
+         {t(' Admin')}
         </Link>
       </div>
 
@@ -86,19 +88,19 @@ export default function Nav({ admin = false }) {
       {isOpen && (
         <div className="absolute top-20  left-0 w-full bg-white shadow-md flex flex-col gap-2 p-4 md:hidden">
           <Link to="/" onClick={() => setIsOpen(false)}>
-            Home
+           {t(' Home')}
           </Link>
           <Link to="/contact" onClick={() => setIsOpen(false)}>
-            Contact
+            {t('Contact')}
           </Link>
           <Link to="/about" onClick={() => setIsOpen(false)}>
-            About Us
+           {t(' About Us')}
           </Link>
           <Link to="/faq" onClick={() => setIsOpen(false)}>
-            FAQ
+           {t(' FAQ')}
           </Link>
           <Link to="/blog" onClick={() => setIsOpen(false)}>
-            Blog 
+           {t(' Blog ')}
           </Link>
           {!admin && (
             <Link
@@ -106,7 +108,7 @@ export default function Nav({ admin = false }) {
               onClick={() => setIsOpen(false)}
               className="text-white bg-blue-700 rounded-2xl p-2 font-bold text-center"
             >
-              Track
+              {t('Track')}
             </Link>
           )}
           {localStorage.getItem('token') ? (
@@ -117,7 +119,7 @@ export default function Nav({ admin = false }) {
               }}
               className="text-red-500 font-bold"
             >
-              Logout
+              {t('Logout')}
             </button>
           ) : (
             <Link
@@ -125,7 +127,7 @@ export default function Nav({ admin = false }) {
               onClick={() => setIsOpen(false)}
               className="text-blue-600 font-bold"
             >
-              Login
+              {t('Login')}
             </Link>
           )}
           <Link
@@ -133,7 +135,7 @@ export default function Nav({ admin = false }) {
             onClick={() => setIsOpen(false)}
             className="text-amber-600 font-bold"
           >
-            Admin
+           {t(' Admin')}
           </Link>
         </div>
       )}

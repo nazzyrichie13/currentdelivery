@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import  '../review.css'
+import { useTranslation } from "react-i18next";
 
 const reviews = [
   {
@@ -35,18 +36,19 @@ const reviews = [
 ];
 
 export default function CustomerReviews() {
+ const {t} = useTranslation();
   return (
     <div className="reviews-wrapper">
-      <h2 className="title">Customer Reviews </h2>
-      <p className="titles">see what our clients speak</p>
+      <h2 className="title">{t('Customer Reviews ')}</h2>
+      <p className="titles">{t('see what our clients speak')}</p>
 
       <div className="reviews-container">
         {reviews.map((review, index) => (
           <div key={index} className="review-card">
             <div className="review-header">
               <div>
-                <h3>{review.name}</h3>
-                <span className="state">{review.state}</span>
+                <h3>{t.review.name}</h3>
+                <span className="state">{t.review.state}</span>
               </div>
 
               <div className="stars">
@@ -61,7 +63,7 @@ export default function CustomerReviews() {
               </div>
             </div>
 
-            <p className="comment">{review.comment}</p>
+            <p className="comment">{t.review.comment}</p>
           </div>
         ))}
       </div>
