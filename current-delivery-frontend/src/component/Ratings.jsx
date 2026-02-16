@@ -47,8 +47,8 @@ export default function CustomerReviews() {
           <div key={index} className="review-card">
             <div className="review-header">
               <div>
-                <h3>{t.review.name}</h3>
-                <span className="state">{t.review.state}</span>
+                <h3>{review.name}</h3>
+                <span className="state">{review.state}</span>
               </div>
 
               <div className="stars">
@@ -63,7 +63,7 @@ export default function CustomerReviews() {
               </div>
             </div>
 
-            <p className="comment">{t.review.comment}</p>
+            <p className="comment">{review.comment}</p>
           </div>
         ))}
       </div>
