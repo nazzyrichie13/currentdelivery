@@ -9,6 +9,7 @@ export default function Nav({ admin = false }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const isLoggedIn = !!localStorage.getItem('token');
 
   function logout() {
     localStorage.removeItem('token');
@@ -17,7 +18,7 @@ export default function Nav({ admin = false }) {
   }
 
   return (
-    <nav className="bg-white shadow p-4 flex items-center justify-between">
+    <nav className="bg-white shadow p-4 flex items-center justify-between relative">
       <Logo />
 
       {/* Hamburger for mobile */}
@@ -57,50 +58,50 @@ export default function Nav({ admin = false }) {
         <Link to="/about">{t('About Us')}</Link>
         <Link to="/faq">{t('FAQ')}</Link>
         <Link to="/blog">{t('Blog')}</Link>
-         <LanguageSwitcher />
+        <LanguageSwitcher />
         {!admin && (
           <Link
             to="/track"
             className="text-white rounded-2xl bg-blue-700 p-2 font-bold"
           >
-            Track
+            {t('Track')}
           </Link>
         )}
       </div>
 
       {/* Right side: Login/Admin */}
       <div className="hidden md:flex gap-2 items-center">
-        {localStorage.getItem('token') ? (
+        {isLoggedIn ? (
           <button onClick={logout} className="text-red-500 font-bold">
-           {t('Logout')}
+            {t('Logout')}
           </button>
         ) : (
           <Link to="/login" className="text-blue-600 font-bold">
-           {t(' Login')}
+            {t('Login')}
           </Link>
         )}
         <Link to="/signup" className="text-amber-600 font-bold">
-         {t(' Admin')}
+          {t('Admin')}
         </Link>
       </div>
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="absolute top-20  left-0 w-full bg-white shadow-md flex flex-col gap-2 p-4 md:hidden">
+        <div className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col gap-2 p-4 md:hidden z-50">
           <Link to="/" onClick={() => setIsOpen(false)}>
-           {t(' Home')}
+            {t('Home')}
           </Link>
           <Link to="/contact" onClick={() => setIsOpen(false)}>
             {t('Contact')}
           </Link>
           <Link to="/about" onClick={() => setIsOpen(false)}>
-           {t(' About Us')}
+            {t('About Us')}
           </Link>
           <Link to="/faq" onClick={() => setIsOpen(false)}>
-           {t(' FAQ')}
+            {t('FAQ')}
           </Link>
           <Link to="/blog" onClick={() => setIsOpen(false)}>
-           {t(' Blog ')}
+            {t('Blog')}
           </Link>
           {!admin && (
             <Link
@@ -111,7 +112,7 @@ export default function Nav({ admin = false }) {
               {t('Track')}
             </Link>
           )}
-          {localStorage.getItem('token') ? (
+          {isLoggedIn ? (
             <button
               onClick={() => {
                 logout();
@@ -135,11 +136,10 @@ export default function Nav({ admin = false }) {
             onClick={() => setIsOpen(false)}
             className="text-amber-600 font-bold"
           >
-           {t(' Admin')}
+            {t('Admin')}
           </Link>
         </div>
       )}
     </nav>
   );
 }
- 
