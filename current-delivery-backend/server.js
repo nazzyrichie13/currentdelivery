@@ -59,11 +59,20 @@ app.use((req, res, next) => {
   }
   res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
+const translationCache = {};
+
 app.post("/api/translate", async (req, res) => {
   const { text, targetLang } = req.body;
+  const cacheKey = `${text}_${targetLang}`;
+
+  if (translationCache[cacheKey]) {
+    return res.json({ translation: translationCache[cacheKey] });
+  }
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY not set");
+
     const prompt = `Translate this text to ${targetLang}: "${text}"`;
 
     const response = await axios.post(
@@ -76,13 +85,17 @@ app.post("/api/translate", async (req, res) => {
       { headers: { Authorization: `Bearer ${apiKey}` } }
     );
 
-    const translation = response.data.choices[0].message.content.trim();
+    const translation =
+      response?.data?.choices?.[0]?.message?.content?.trim() || text;
+
+    translationCache[cacheKey] = translation;
     res.json({ translation });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ translation: text }); // fallback to English
+    console.error("Translate API error:", error?.response?.data || error.message);
+    res.json({ translation: text });
   }
 });
+
 
 /* =======================
    DATABASE
