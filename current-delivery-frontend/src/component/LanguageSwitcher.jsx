@@ -1,5 +1,5 @@
 import { useState } from "react";
-import i18n from "../i18n"; // adjust path to your i18n instance
+import { useTranslation } from "react-i18next";
 
 const languages = [
   { code: "en", label: "English", flag: "https://flagcdn.com/w20/gb.png" },
@@ -21,6 +21,7 @@ const languages = [
 ];
 
 export default function LanguageSwitcher() {
+  const { i18n } = useTranslation(); // ✅ useTranslation hook triggers re-render
   const [loading, setLoading] = useState(false);
 
   const changeLanguage = async (lng) => {
@@ -34,11 +35,13 @@ export default function LanguageSwitcher() {
     }
   };
 
+  const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
+
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <select
         onChange={(e) => changeLanguage(e.target.value)}
-        value={i18n.language}
+        value={currentLanguage.code}
         style={{ fontSize: "16px", padding: "4px" }}
       >
         {languages.map((lang) => (
@@ -48,10 +51,10 @@ export default function LanguageSwitcher() {
         ))}
       </select>
 
-      {/* Display the flag of the current language */}
+      {/* Current flag */}
       <img
-        src={languages.find((l) => l.code === i18n.language)?.flag}
-        alt="flag"
+        src={currentLanguage.flag}
+        alt={currentLanguage.label}
         style={{ width: "24px", height: "16px" }}
       />
 
