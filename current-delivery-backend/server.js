@@ -65,67 +65,55 @@ app.post("/api/translate", async (req, res) => {
   const { text, targetLang } = req.body;
 
   if (!Array.isArray(text)) {
-    return res.json({ translations: text });
+    return res.json({ translations: [text] });
   }
 
   const cacheKey = JSON.stringify(text) + targetLang;
 
   if (translationCache[cacheKey]) {
-    return res.json({
-      translations: translationCache[cacheKey],
-    });
+    return res.json({ translations: translationCache[cacheKey] });
   }
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey)
-      throw new Error("OPENAI_API_KEY not set");
+    if (!apiKey) throw new Error("OPENAI_API_KEY not set");
 
-    // Join texts safely
-    const joinedText = text.join(" || ");
-
+    // Prompt AI to return JSON array
     const prompt = `
-Translate each sentence to ${targetLang}.
-Return ONLY translations separated by ||.
+Translate the following array of English sentences to ${targetLang}.
+Return ONLY a JSON array in the same order.
 
-Text:
-${joinedText}
+${JSON.stringify(text)}
 `;
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-4.1-mini",
-        messages: [
-          { role: "user", content: prompt }
-        ],
+        messages: [{ role: "user", content: prompt }],
         temperature: 0,
       },
       {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${apiKey}` },
       }
     );
 
-    const output =
-      response.data.choices[0].message.content;
+    const output = response.data.choices[0].message.content;
 
-    const translations = output
-      .split("||")
-      .map((t) => t.trim());
+    let translations;
 
-    translationCache[cacheKey] =
-      translations;
+    try {
+      translations = JSON.parse(output);
+    } catch {
+      // fallback if AI didn't return valid JSON
+      translations = text;
+    }
+
+    translationCache[cacheKey] = translations;
 
     res.json({ translations });
   } catch (error) {
-    console.error(
-      "Translate API error:",
-      error?.response?.data || error.message
-    );
-
+    console.error("Translate API error:", error?.response?.data || error.message);
     res.json({ translations: text }); // fallback
   }
 });
