@@ -63,39 +63,72 @@ const translationCache = {};
 
 app.post("/api/translate", async (req, res) => {
   const { text, targetLang } = req.body;
-  const cacheKey = `${text}_${targetLang}`;
+
+  if (!Array.isArray(text)) {
+    return res.json({ translations: text });
+  }
+
+  const cacheKey = JSON.stringify(text) + targetLang;
 
   if (translationCache[cacheKey]) {
-    return res.json({ translation: translationCache[cacheKey] });
+    return res.json({
+      translations: translationCache[cacheKey],
+    });
   }
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error("OPENAI_API_KEY not set");
+    if (!apiKey)
+      throw new Error("OPENAI_API_KEY not set");
 
-    const prompt = `Translate this text to ${targetLang}: "${text}"`;
+    // Join texts safely
+    const joinedText = text.join(" || ");
+
+    const prompt = `
+Translate each sentence to ${targetLang}.
+Return ONLY translations separated by ||.
+
+Text:
+${joinedText}
+`;
 
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
+        model: "gpt-4.1-mini",
+        messages: [
+          { role: "user", content: prompt }
+        ],
         temperature: 0,
       },
-      { headers: { Authorization: `Bearer ${apiKey}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    const translation =
-      response?.data?.choices?.[0]?.message?.content?.trim() || text;
+    const output =
+      response.data.choices[0].message.content;
 
-    translationCache[cacheKey] = translation;
-    res.json({ translation });
+    const translations = output
+      .split("||")
+      .map((t) => t.trim());
+
+    translationCache[cacheKey] =
+      translations;
+
+    res.json({ translations });
   } catch (error) {
-    console.error("Translate API error:", error?.response?.data || error.message);
-    res.json({ translation: text });
+    console.error(
+      "Translate API error:",
+      error?.response?.data || error.message
+    );
+
+    res.json({ translations: text }); // fallback
   }
 });
-
 
 /* =======================
    DATABASE
