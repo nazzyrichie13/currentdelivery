@@ -1,5 +1,5 @@
 import { useState } from "react";
-import i18n from "../i18n]"; // adjust path to your i18n instance
+import i18n from "../i18n"; // adjust path to your i18n instance
 
 const languages = [
   { code: "en", label: "English", flag: "https://flagcdn.com/w20/gb.png" },
