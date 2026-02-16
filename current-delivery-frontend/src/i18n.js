@@ -1,57 +1,67 @@
+
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import axios from "axios";
 
-// Base English keys
+///////////////////////////////////////////////////////////
+// 1️⃣ BASE TRANSLATIONS (FIXED STRUCTURE)
+///////////////////////////////////////////////////////////
+
 const baseTranslations = {
-  "Create Shipment": "Create Shipment",
-  "Track Shipment": "Track Shipment",
-  "Download Invoice": "Download Invoice",
-  "Welcome to ShipTrack": "Welcome to ShipTrack",
-  "Track your shipments quickly and easily": "Track your shipments quickly and easily",
-  "Enter Tracking Code": "Enter Tracking Code",
-  "Submit": "Submit",
-  "Recent Shipments": "Recent Shipments",
-  "No shipments found": "No shipments found",
-  "Shipment": "Shipment",
-  "Status": "Status",
-  "Delivery Progress": "Delivery Progress",
-  "Shipment not found.": "Shipment not found.",
-  "Failed to load shipment.": "Failed to load shipment.",
-  "Loading shipment…": "Loading shipment…",
-  "Shipment is currently on hold.": "Shipment is currently on hold.",
-  "Sender Information": "Sender Information",
-  "Recipient": "Recipient",
-  "Package Details": "Package Details",
-  "Package Description": "Package Description",
-  "Package Service Type": "Package Service Type",
-  "Package Quantity": "Package Quantity",
-  "Package Weight": "Package Weight",
-  "Shipping Cost": "Shipping Cost",
-  "Shipping Details": "Shipping Details",
-  "Service": "Service",
-  "Expected Delivery": "Expected Delivery",
-  "Confirmed Delivery": "Confirmed Delivery",
-  "Package Destination": "Package Destination",
-  "Current Location": "Current Location",
-  "Last updated": "Last updated",
-  "Package Image": "Package Image",
-  "No location yet": "No location yet",
-  "Chat": "Chat",
-  "Do you want to reschedule delivery Date? click here!!!": "Do you want to reschedule delivery Date? click here!!!",
-  "N/A": "N/A",
-  "Not yet": "Not yet",
-  "Package": "Package",
-  "created": "Created",
-  "scheduled": "Scheduled",
-  "rescheduled": "Rescheduled",
-  "in_transit": "In Transit",
-  "on_hold": "On Hold",
-  "out_for_delivery": "Out for Delivery",
-  "delivered": "Delivered",
-  "cancelled": "Cancelled",
-  // Home Page & Misc
-  "We ship from the USA to countries worldwide, and from other countries to the USA.": "We ship from the USA to countries worldwide, and from other countries to the USA.",
+  en: {
+    translation: {
+      "Create Shipment": "Create Shipment",
+      "Track Shipment": "Track Shipment",
+      "Download Invoice": "Download Invoice",
+      "Welcome to ShipTrack": "Welcome to ShipTrack",
+      "Track your shipments quickly and easily":
+        "Track your shipments quickly and easily",
+      "Enter Tracking Code": "Enter Tracking Code",
+      "Submit": "Submit",
+      "Recent Shipments": "Recent Shipments",
+      "No shipments found": "No shipments found",
+      "Shipment": "Shipment",
+      "Status": "Status",
+      "Delivery Progress": "Delivery Progress",
+      "Shipment not found.": "Shipment not found.",
+      "Failed to load shipment.": "Failed to load shipment.",
+      "Loading shipment…": "Loading shipment…",
+      "Shipment is currently on hold.":
+        "Shipment is currently on hold.",
+      "Sender Information": "Sender Information",
+      "Recipient": "Recipient",
+      "Package Details": "Package Details",
+      "Package Description": "Package Description",
+      "Package Service Type": "Package Service Type",
+      "Package Quantity": "Package Quantity",
+      "Package Weight": "Package Weight",
+      "Shipping Cost": "Shipping Cost",
+      "Shipping Details": "Shipping Details",
+      "Service": "Service",
+      "Expected Delivery": "Expected Delivery",
+      "Confirmed Delivery": "Confirmed Delivery",
+      "Package Destination": "Package Destination",
+      "Current Location": "Current Location",
+      "Last updated": "Last updated",
+      "Package Image": "Package Image",
+      "No location yet": "No location yet",
+      "Chat": "Chat",
+      "Do you want to reschedule delivery Date? click here!!!":
+        "Do you want to reschedule delivery Date? click here!!!",
+      "N/A": "N/A",
+      "Not yet": "Not yet",
+      "Package": "Package",
+      "created": "Created",
+      "scheduled": "Scheduled",
+      "rescheduled": "Rescheduled",
+      "in_transit": "In Transit",
+      "on_hold": "On Hold",
+      "out_for_delivery": "Out for Delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+
+      // HOME
+      "We ship from the USA to countries worldwide, and from other countries to the USA.": "We ship from the USA to countries worldwide, and from other countries to the USA.",
   "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve": "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve",
   "Sign Up Today": "Sign Up Today",
   "You Deserve A Shipping Provider You Can Trust": "You Deserve A Shipping Provider You Can Trust",
@@ -85,50 +95,106 @@ const baseTranslations = {
   "Home Delivery": "Home Delivery",
   "Ship, Send, & Receive With Confidence": "Ship, Send, & Receive With Confidence",
   "Welcome Banner": "Welcome Banner"
+    }
+  }
 };
 
-// OpenAI backend class with batch translation
+///////////////////////////////////////////////////////////
+// 2️⃣ AI BACKEND (FIXED)
+///////////////////////////////////////////////////////////
+
 class OpenAIBackend {
   type = "backend";
 
   async read(language, namespace, callback) {
     try {
-      // Send all keys to backend in one request
-      const res = await axios.post(`${window.location.origin}/api/translate`, {
-        text: Object.values(baseTranslations), // send all values
-        targetLang: language
-      });
+      // Skip English (already exists)
+      if (language === "en") {
+        return callback(null, baseTranslations.en.translation);
+      }
 
-      // Res.data should now be an array of translations in the same order
-      const translationsArray = res.data.translations || [];
-      const keys = Object.keys(baseTranslations);
+      // Send text to your backend
+      const res = await axios.post(
+        `${window.location.origin}/api/translate`,
+        {
+          text: Object.values(
+            baseTranslations.en.translation
+          ),
+          targetLang: language
+        }
+      );
+
+      const translationsArray =
+        res.data?.translations || [];
+
+      const keys = Object.keys(
+        baseTranslations.en.translation
+      );
+
       const translations = {};
 
       keys.forEach((key, i) => {
-        translations[key] = translationsArray[i] || baseTranslations[key];
+        translations[key] =
+          translationsArray[i] ||
+          baseTranslations.en.translation[key];
       });
 
       callback(null, translations);
     } catch (error) {
-      console.error("Batch translation error:", error.message);
-      callback(null, baseTranslations); // fallback to English
+      console.error(
+        "Batch translation error:",
+        error.message
+      );
+
+      // Fallback to English
+      callback(
+        null,
+        baseTranslations.en.translation
+      );
     }
   }
 }
 
-// Initialize i18next
+///////////////////////////////////////////////////////////
+// 3️⃣ INIT I18NEXT (FIXED ORDER + RESOURCES)
+///////////////////////////////////////////////////////////
+
 i18n
+  .use(new OpenAIBackend()) // backend FIRST
   .use(initReactI18next)
-  .use(new OpenAIBackend())
   .init({
+    resources: baseTranslations, // IMPORTANT
     lng: "en",
     fallbackLng: "en",
     debug: false,
-    interpolation: { escapeValue: false },
+
     ns: ["translation"],
     defaultNS: "translation",
-    react: { useSuspense: true },
-    saveMissing: true
+
+    interpolation: {
+      escapeValue: false
+    },
+
+    react: {
+      useSuspense: false
+    }
   });
 
 export default i18n;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
