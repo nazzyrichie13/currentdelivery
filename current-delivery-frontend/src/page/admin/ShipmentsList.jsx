@@ -10,9 +10,9 @@ export default function ShipmentsList() {
     async function fetchShipments() {
       try {
         const res = await API.get('/api/shipment');
-        // ✅ Filter out any invalid or null shipment objects
+        // ✅ Keep only valid objects with trackingCode
         const validShipments = Array.isArray(res.data)
-          ? res.data.filter(s => s && s.trackingCode)
+          ? res.data.filter(s => s && typeof s === 'object' && s.trackingCode)
           : [];
         setList(validShipments);
       } catch (err) {
@@ -24,7 +24,7 @@ export default function ShipmentsList() {
     fetchShipments();
   }, []);
 
-  if (!list.length && !msg) {
+  if ((!list || !list.length) && !msg) {
     return <p className="p-6 text-gray-500">No shipments available.</p>;
   }
 
@@ -35,18 +35,18 @@ export default function ShipmentsList() {
       <div className="grid gap-3">
         {list.map((s, i) => (
           <div
-            key={s._id || i}
+            key={s?._id || i}
             className="p-3 bg-white rounded shadow flex justify-between"
           >
             <div>
-              <div className="font-semibold">{s.trackingCode || 'N/A'}</div>
+              <div className="font-semibold">{s?.trackingCode || 'N/A'}</div>
               <div className="text-sm text-gray-600">
-                {s.recipient?.name || 'No recipient'} • {s.status || 'Unknown status'}
+                {s?.recipient?.name || 'No recipient'} • {s?.status || 'Unknown status'}
               </div>
             </div>
             <div>
               <Link
-                to={`/shipment/${s.trackingCode || ''}`}
+                to={`/shipment/${s?.trackingCode || ''}`}
                 className="text-blue-600 underline"
               >
                 View
