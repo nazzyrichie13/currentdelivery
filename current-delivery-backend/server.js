@@ -61,8 +61,6 @@ app.use((req, res, next) => {
 });
 // server.js (or your Express setup)
 
-import axios from "axios";
-
 const translationCache = {};
 
 app.post("/api/translate", async (req, res) => {
