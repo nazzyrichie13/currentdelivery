@@ -9,6 +9,7 @@ import axios from "axios";
 
 const baseTranslations = {
   
+
       "Create Shipment": "Create Shipment",
       "Track Shipment": "Track Shipment",
       "Download Invoice": "Download Invoice",
@@ -105,37 +106,38 @@ const baseTranslations = {
 class OpenAIBackend {
   type = "backend";
 
-  async read(language, namespace, callback) {
-    try {
-      const res = await axios.post("/api/translate", {
+  read(language, namespace, callback) {
+    axios
+      .post("/api/translate", {
         text: Object.values(baseTranslations),
         targetLang: language
+      })
+      .then((res) => {
+        const translationsArray = res.data.translations || [];
+        const translations = {};
+        Object.keys(baseTranslations).forEach((key, i) => {
+          translations[key] = translationsArray[i] || baseTranslations[key];
+        });
+        callback(null, translations); // ✅ pass proper object
+      })
+      .catch((err) => {
+        console.error("Translation backend error:", err.message);
+        callback(null, baseTranslations); // fallback
       });
-
-      const translationsArray = res.data.translations || [];
-      const translations = {};
-      Object.keys(baseTranslations).forEach((key, i) => {
-        translations[key] = translationsArray[i] || baseTranslations[key];
-      });
-
-      callback(null, translations);
-    } catch (error) {
-      console.error("Translation backend error:", error.message);
-      callback(null, baseTranslations);
-    }
   }
 }
 
+
 // Init i18next
 i18n
+   .use(new OpenAIBackend())
   .use(initReactI18next)
-  .use(new OpenAIBackend())
   .init({
     lng: "en",
     fallbackLng: "en",
     ns: ["translation"],
     defaultNS: "translation",
-    debug: false,
+    debug: true,
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
     saveMissing: true
