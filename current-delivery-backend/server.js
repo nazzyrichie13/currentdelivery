@@ -67,9 +67,7 @@ const translationCache = {};
 app.post("/api/translate", async (req, res) => {
   const { text, targetLang } = req.body;
 
-  if (!Array.isArray(text)) {
-    return res.json({ translations: [text] });
-  }
+  res.json({ translations }); // array in same order as baseTranslations
 
   const cacheKey = JSON.stringify(text) + targetLang;
 
