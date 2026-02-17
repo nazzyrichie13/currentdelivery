@@ -8,8 +8,7 @@ import axios from "axios";
 ///////////////////////////////////////////////////////////
 
 const baseTranslations = {
-  en: {
-    translation: {
+  
       "Create Shipment": "Create Shipment",
       "Track Shipment": "Track Shipment",
       "Download Invoice": "Download Invoice",
@@ -95,8 +94,8 @@ const baseTranslations = {
   "Home Delivery": "Home Delivery",
   "Ship, Send, & Receive With Confidence": "Ship, Send, & Receive With Confidence",
   "Welcome Banner": "Welcome Banner"
-    }
-  }
+    
+  
 };
 
 ///////////////////////////////////////////////////////////
@@ -108,93 +107,38 @@ class OpenAIBackend {
 
   async read(language, namespace, callback) {
     try {
-      // Skip English (already exists)
-      if (language === "en") {
-        return callback(null, baseTranslations.en.translation);
-      }
+      const res = await axios.post("/api/translate", {
+        text: Object.values(baseTranslations),
+        targetLang: language
+      });
 
-      // Send text to your backend
-      const res = await axios.post(
-        `${window.location.origin}/api/translate`,
-        {
-          text: Object.values(
-            baseTranslations.en.translation
-          ),
-          targetLang: language
-        }
-      );
-
-      const translationsArray =
-        res.data?.translations || [];
-
-      const keys = Object.keys(
-        baseTranslations.en.translation
-      );
-
+      const translationsArray = res.data.translations || [];
       const translations = {};
-
-      keys.forEach((key, i) => {
-        translations[key] =
-          translationsArray[i] ||
-          baseTranslations.en.translation[key];
+      Object.keys(baseTranslations).forEach((key, i) => {
+        translations[key] = translationsArray[i] || baseTranslations[key];
       });
 
       callback(null, translations);
     } catch (error) {
-      console.error(
-        "Batch translation error:",
-        error.message
-      );
-
-      // Fallback to English
-      callback(
-        null,
-        baseTranslations.en.translation
-      );
+      console.error("Translation backend error:", error.message);
+      callback(null, baseTranslations);
     }
   }
 }
 
-///////////////////////////////////////////////////////////
-// 3️⃣ INIT I18NEXT (FIXED ORDER + RESOURCES)
-///////////////////////////////////////////////////////////
-
+// Init i18next
 i18n
-  .use(new OpenAIBackend()) // backend FIRST
   .use(initReactI18next)
+  .use(new OpenAIBackend())
   .init({
-    resources: baseTranslations, // IMPORTANT
     lng: "en",
     fallbackLng: "en",
-    debug: false,
-
     ns: ["translation"],
     defaultNS: "translation",
-
-    interpolation: {
-      escapeValue: false
-    },
-
-    react: {
-      useSuspense: false
-    }
+    debug: false,
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+    saveMissing: true
   });
 
 export default i18n;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -51,36 +51,27 @@ export default function LanguageSwitcher() {
 
   const changeLanguage = async (lng) => {
     setLoading(true);
-    await i18n.changeLanguage(lng);
-    setLoading(false);
+    try {
+      await i18n.changeLanguage(lng);
+    } catch (err) {
+      console.error("Language change failed:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const current =
-    languages.find((l) => l.code === i18n.language) ||
-    languages[0];
+  const currentLang = languages.find((l) => l.code === i18n.language) || languages[0];
 
   return (
-    <div style={{ display: "flex", gap: 10 }}>
-      <select
-        value={current.code}
-        onChange={(e) =>
-          changeLanguage(e.target.value)
-        }
-      >
-        {languages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
-            {lang.label}
-          </option>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <select value={currentLang.code} onChange={(e) => changeLanguage(e.target.value)}>
+        {languages.map((l) => (
+          <option key={l.code} value={l.code}>{l.label}</option>
         ))}
       </select>
 
-      <img
-        src={current.flag}
-        alt=""
-        width={24}
-      />
-
-      {loading && <span>Translating…</span>}
+      <img src={currentLang.flag} alt={currentLang.label} width={24} height={16} />
+      {loading && <span>Translating...</span>}
     </div>
   );
 }
