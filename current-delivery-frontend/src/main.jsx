@@ -1,14 +1,16 @@
-
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import ScrollToTop from "./component/ScrollToTop";
- import "./i18n";// ✅ important: initialize i18next before using useTranslation
+import "./i18n"; // ✅ initialize i18next first
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <ScrollToTop />
-    <App />
-  </BrowserRouter>
+  <Suspense fallback={<div>Loading translations...</div>}>
+    <BrowserRouter>
+      <ScrollToTop />
+      <App />
+    </BrowserRouter>
+  </Suspense>
 );

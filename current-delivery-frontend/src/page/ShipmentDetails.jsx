@@ -109,7 +109,11 @@ export default function ShipmentDetails() {
 
       {/* Shipment Info */}
       <h2 className="text-lg sm:text-xl font-bold">{t('Shipment')} {safe(shipment?.trackingCode)}</h2>
-      <p>{t('Status')}: <strong>{safe(shipment?.status)}</strong></p>
+      <p>
+  {t('Status')}:{" "}
+  <strong>{t(safe(shipment?.status))}</strong>
+</p>
+
 
       {/* Progress Bar */}
       <div className="mt-4">
@@ -213,7 +217,8 @@ export default function ShipmentDetails() {
                 />
                 <Marker position={[shipment.location.coords.lat, shipment.location.coords.lng]}>
                   <Popup>
-                    <strong className='text-red-700'>{t('Status')}:</strong> {safe(shipment?.status)}<br />
+                    <strong className='text-red-700'>{t('Status')}:</strong> {t(safe(shipment?.status))}
+<br />
                     {safe(shipment?.location?.text)}
                   </Popup>
                 </Marker>
