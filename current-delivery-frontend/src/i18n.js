@@ -5,18 +5,22 @@ import axios from "axios";
 ///////////////////////////////////////////////////////////
 // 1️⃣ BASE TRANSLATIONS
 ///////////////////////////////////////////////////////////
-
 const baseTranslations = {
   "Create Shipment": "Create Shipment",
   "Track Shipment": "Track Shipment",
   "Tracking Code": "Tracking Code",
-  
-  "You Deserve A Shipping Provider You Can Trust": "You Deserve A Shipping Provider You Can Trust",
-  "Reasons to Trust Our Delivery Service": "Reasons to Trust Our Delivery Service",
-  "Shipping To & From Any Country Should Be More Reliable": "Shipping To & From Any Country Should Be More Reliable",
-  "Ship, Send, & Receive With Confidence": "Ship, Send, & Receive With Confidence",
+
+  "You Deserve A Shipping Provider You Can Trust":
+    "You Deserve A Shipping Provider You Can Trust",
+  "Reasons to Trust Our Delivery Service":
+    "Reasons to Trust Our Delivery Service",
+  "Shipping To & From Any Country Should Be More Reliable":
+    "Shipping To & From Any Country Should Be More Reliable",
+  "Ship, Send, & Receive With Confidence":
+    "Ship, Send, & Receive With Confidence",
   "Core Services": "Core Services",
   "Download Invoice": "Download Invoice",
+
   "Welcome to ShipTrack": "Welcome to ShipTrack",
   "Track your shipments quickly and easily":
     "Track your shipments quickly and easily",
@@ -24,6 +28,7 @@ const baseTranslations = {
   "Submit": "Submit",
   "Recent Shipments": "Recent Shipments",
   "No shipments found": "No shipments found",
+
   "Shipment": "Shipment",
   "Status": "Status",
   "Delivery Progress": "Delivery Progress",
@@ -32,6 +37,7 @@ const baseTranslations = {
   "Loading shipment…": "Loading shipment…",
   "Shipment is currently on hold.":
     "Shipment is currently on hold.",
+
   "Sender Information": "Sender Information",
   "Recipient": "Recipient",
   "Package Details": "Package Details",
@@ -49,11 +55,14 @@ const baseTranslations = {
   "Last updated": "Last updated",
   "Package Image": "Package Image",
   "No location yet": "No location yet",
+
   "Chat": "Chat",
   "Do you want to reschedule delivery Date? click here!!!":
     "Do you want to reschedule delivery Date? click here!!!",
+
   "N/A": "N/A",
   "Not yet": "Not yet",
+
   "Package": "Package",
   "created": "Created",
   "scheduled": "Scheduled",
@@ -64,24 +73,71 @@ const baseTranslations = {
   "delivered": "Delivered",
   "cancelled": "Cancelled",
 
-  // HOME
+  // HOME / LANDING
   "How Does It Work?": "How Does It Work?",
   "Step 1.": "Step 1.",
   "Step 2.": "Step 2.",
   "Step 3.": "Step 3.",
   "Sign Up Today": "Sign Up Today",
-  "logout":"logout",
-  "Customer Reviews":"Customer Reviews",
-  "Admin":"Admin",
-  "Home":"Home",
-  "About us":"About us",
-  "Blog":"Blog",
-  "FAQ":"FAQ",
-  "Track":"Track",
-  "Contact":"Contact",
-  "see what our clients speak":"see what our clients speak"
 
+  // NAV / HEADER
+  "Logout": "Logout",
+  "Admin": "Admin",
+  "Home": "Home",
+  "About Us": "About Us",
+  "Blog": "Blog",
+  "FAQ": "FAQ",
+  "Track": "Track",
+  "Contact": "Contact",
+
+  // REVIEWS / MARKETING
+  "Customer Reviews": "Customer Reviews",
+  "See what our clients speak": "See what our clients speak",
+
+  // SERVICES / FEATURES
+  "Reliable & On-Time Delivery": "Reliable & On-Time Delivery",
+  "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.":
+    "We prioritize speed and accuracy to ensure your packages arrive safely and on schedule.",
+
+  "Real-Time Shipment Tracking": "Real-Time Shipment Tracking",
+  "Track your delivery at every stage, from pickup to final destination.":
+    "Track your delivery at every stage, from pickup to final destination.",
+
+  "Secure Package Handling": "Secure Package Handling",
+  "Your items are handled with care and protected throughout the delivery process.":
+    "Your items are handled with care and protected throughout the delivery process.",
+
+  "International Shipping Expertise":
+    "International Shipping Expertise",
+  "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.":
+    "We ship from the USA to countries worldwide and from other countries to the USA with full compliance.",
+
+  "Transparent Pricing": "Transparent Pricing",
+  "No hidden fees—clear and honest shipping costs you can trust.":
+    "No hidden fees—clear and honest shipping costs you can trust.",
+
+  "Dedicated Customer Support": "Dedicated Customer Support",
+  "Our support team is always available to assist you before, during, and after delivery.":
+    "Our support team is always available to assist you before, during, and after delivery.",
+
+  "Trusted by Many Customers": "Trusted by Many Customers",
+  "Our growing customer base is built on consistency, professionalism, and satisfaction.":
+    "Our growing customer base is built on consistency, professionalism, and satisfaction.",
+
+  "Sign up today! it's simple": "Sign up today! it's simple",
+  "Get A Free U.S. Address": "Get A Free U.S. Address",
+  "Ship To & From Worldwide With Confidence":
+    "Ship To & From Worldwide With Confidence",
+
+  // SHIPPING TYPES
+  "Air Freight": "Air Freight",
+  "Sea Freight": "Sea Freight",
+  "Vehicle Delivery": "Vehicle Delivery",
+  "Home Delivery": "Home Delivery"
 };
+
+
+
 
 ///////////////////////////////////////////////////////////
 // 2️⃣ AI BACKEND
@@ -146,7 +202,9 @@ i18n
       useSuspense: true   // ✅ MUST be true
     },
 
-    saveMissing: false,  // ❌ disable (you had no create())
+    saveMissing: false,
+missingKeyHandler: false,
+  // ❌ disable (you had no create())
     initImmediate: false // ✅ prevents race condition
   });
 
