@@ -59,6 +59,9 @@ app.use((req, res, next) => {
   }
   res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
 });
+// server.js (or your Express setup)
+
+
 const translationCache = {};
 
 app.post("/api/translate", async (req, res) => {
@@ -75,14 +78,18 @@ app.post("/api/translate", async (req, res) => {
   }
 
   try {
+    if (targetLang === "en") {
+      // English -> English, no translation needed
+      translationCache[cacheKey] = text;
+      return res.json({ translations: text });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("OPENAI_API_KEY not set");
 
-    // Prompt AI to return JSON array
     const prompt = `
 Translate the following array of English sentences to ${targetLang}.
 Return ONLY a JSON array in the same order.
-
 ${JSON.stringify(text)}
 `;
 
@@ -93,30 +100,28 @@ ${JSON.stringify(text)}
         messages: [{ role: "user", content: prompt }],
         temperature: 0,
       },
-      {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      }
+      { headers: { Authorization: `Bearer ${apiKey}` } }
     );
 
     const output = response.data.choices[0].message.content;
 
     let translations;
-
     try {
       translations = JSON.parse(output);
     } catch {
-      // fallback if AI didn't return valid JSON
-      translations = text;
+      translations = text; // fallback
     }
 
     translationCache[cacheKey] = translations;
-
     res.json({ translations });
   } catch (error) {
     console.error("Translate API error:", error?.response?.data || error.message);
     res.json({ translations: text }); // fallback
   }
 });
+
+
+
 
 /* =======================
    DATABASE
