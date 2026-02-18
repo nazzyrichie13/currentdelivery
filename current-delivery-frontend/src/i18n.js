@@ -79,6 +79,13 @@ const baseTranslations = {
   "Step 2.": "Step 2.",
   "Step 3.": "Step 3.",
   "Sign Up Today": "Sign Up Today",
+  "sign up today! it's simple": "Sign up today! it's simple",
+  "We ship from the USA to countries worldwide, and from other countries to the USA.":
+    "We ship from the USA to countries worldwide, and from other countries to the USA.",
+  "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve":
+    "Reliable and Affordable Shipping Services To Give You the Peace Of mind You Deserve",
+  "Ship To & From Worldwide With Confidence":
+    "Ship To & From Worldwide With Confidence",
 
   // NAV / HEADER
   "Logout": "Logout",
@@ -124,20 +131,12 @@ const baseTranslations = {
   "Our growing customer base is built on consistency, professionalism, and satisfaction.":
     "Our growing customer base is built on consistency, professionalism, and satisfaction.",
 
-  "Sign up today! it's simple": "Sign up today! it's simple",
-  "Get A Free U.S. Address": "Get A Free U.S. Address",
-  "Ship To & From Worldwide With Confidence":
-    "Ship To & From Worldwide With Confidence",
-
   // SHIPPING TYPES
   "Air Freight": "Air Freight",
   "Sea Freight": "Sea Freight",
   "Vehicle Delivery": "Vehicle Delivery",
   "Home Delivery": "Home Delivery"
 };
-
-
-
 
 ///////////////////////////////////////////////////////////
 // 2️⃣ AI BACKEND
