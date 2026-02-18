@@ -1,5 +1,5 @@
 // translations.js
-export const translations = {
+const translations = {
   en: {
     "Create Shipment": "Create Shipment",
     "Track Shipment": "Track Shipment",
@@ -423,3 +423,5 @@ export const translations = {
     "Ship, Send, & Receive With Confidence": "自信地发送、接收与寄送"
   }
 };
+
+export default translations; //
