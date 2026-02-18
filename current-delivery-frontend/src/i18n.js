@@ -2,10 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import axios from "axios";
 
-///////////////////////////////////////////////////////////
 // 1️⃣ BASE TRANSLATIONS
-///////////////////////////////////////////////////////////
-// baseTranslations.js
 const baseTranslations = {
   "Create Shipment": "Create Shipment",
   "Track Shipment": "Track Shipment",
@@ -102,21 +99,12 @@ const baseTranslations = {
   "Ship, Send, & Receive With Confidence": "Ship, Send, & Receive With Confidence"
 };
 
-
-
-
-///////////////////////////////////////////////////////////
-// 2️⃣ AI BACKEND
-///////////////////////////////////////////////////////////
-
+// 2️⃣ AI BACKEND FOR MULTIPLE LANGUAGES
 class OpenAIBackend {
   type = "backend";
 
   read(language, namespace, callback) {
-    // 🚀 If English → return instantly (prevents init warning)
-    if (language === "en") {
-      return callback(null, baseTranslations);
-    }
+    if (language === "en") return callback(null, baseTranslations);
 
     axios
       .post("/api/translate", {
@@ -125,13 +113,10 @@ class OpenAIBackend {
       })
       .then((res) => {
         const translationsArray = res.data.translations || [];
-
         const translations = {};
         Object.keys(baseTranslations).forEach((key, i) => {
-          translations[key] =
-            translationsArray[i] || baseTranslations[key];
+          translations[key] = translationsArray[i] || baseTranslations[key];
         });
-
         callback(null, translations);
       })
       .catch((err) => {
@@ -141,37 +126,21 @@ class OpenAIBackend {
   }
 }
 
-///////////////////////////////////////////////////////////
-// 3️⃣ INIT (FIXED)
-///////////////////////////////////////////////////////////
-
+// 3️⃣ INIT i18next
 i18n
   .use(new OpenAIBackend())
   .use(initReactI18next)
   .init({
     lng: "en",
     fallbackLng: "en",
-
+    preload: ["en", "es", "fr", "it", "zh"],
     ns: ["translation"],
     defaultNS: "translation",
-
-    // ✅ preload English so namespace is ready
-    preload: ["en"],
-
     debug: true,
-
-    interpolation: {
-      escapeValue: false
-    },
-
-    react: {
-      useSuspense: true   // ✅ MUST be true
-    },
-
+    interpolation: { escapeValue: false },
+    react: { useSuspense: true },
     saveMissing: false,
-missingKeyHandler: false,
-  // ❌ disable (you had no create())
-    initImmediate: false // ✅ prevents race condition
+    initImmediate: false
   });
 
 export default i18n;
