@@ -9,8 +9,7 @@ const path = require('path');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require( "body-parser");
-const axios = require("axios");
-const fs = require("fs");
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
@@ -61,123 +60,7 @@ app.use((req, res, next) => {
 });
 // server.js (or your Express setup)
 
-const translationCache = {};
 
-app.post("/api/translate", async (req, res) => {
-  try {
-    const { text, targetLang } = req.body;
-
-    ///////////////////////////////////////////////////////////
-    // 1️⃣ VALIDATION
-    ///////////////////////////////////////////////////////////
-
-    if (!Array.isArray(text) || !targetLang) {
-      return res.status(400).json({
-        error: "Invalid payload. text[] and targetLang required."
-      });
-    }
-
-    ///////////////////////////////////////////////////////////
-    // 2️⃣ CACHE CHECK
-    ///////////////////////////////////////////////////////////
-
-    const cacheKey = JSON.stringify(text) + targetLang;
-
-    if (translationCache[cacheKey]) {
-      return res.json({
-        translations: translationCache[cacheKey]
-      });
-    }
-
-    ///////////////////////////////////////////////////////////
-    // 3️⃣ ENGLISH FALLBACK
-    ///////////////////////////////////////////////////////////
-
-    if (targetLang === "en") {
-      translationCache[cacheKey] = text;
-      return res.json({ translations: text });
-    }
-
-    ///////////////////////////////////////////////////////////
-    // 4️⃣ OPENAI CALL
-    ///////////////////////////////////////////////////////////
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY not set");
-    }
-
-    const prompt = `
-Translate the following JSON array of English sentences to ${targetLang}.
-Return ONLY a pure JSON array. No explanation.
-
-${JSON.stringify(text)}
-`;
-
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4.1-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        timeout: 30000
-      }
-    );
-
-    ///////////////////////////////////////////////////////////
-    // 5️⃣ SAFE PARSE
-    ///////////////////////////////////////////////////////////
-
-    let output =
-      response?.data?.choices?.[0]?.message?.content || "[]";
-
-    // Remove markdown if model adds it
-    output = output.replace(/```json|```/g, "").trim();
-
-    let translations;
-
-    try {
-      translations = JSON.parse(output);
-    } catch {
-      console.warn("Parse failed, using fallback");
-      translations = text;
-    }
-
-    ///////////////////////////////////////////////////////////
-    // 6️⃣ CACHE SAVE
-    ///////////////////////////////////////////////////////////
-
-    translationCache[cacheKey] = translations;
-
-    ///////////////////////////////////////////////////////////
-    // 7️⃣ RESPONSE
-    ///////////////////////////////////////////////////////////
-
-    res.json({ translations });
-
-  } catch (error) {
-    console.error(
-      "Translate API error:",
-      error?.response?.data || error.message
-    );
-
-    res.json({
-      translations: req.body.text || []
-    });
-  }
-});
-
-
-fs.writeFileSync(
-  "./translationCache.json",
-  JSON.stringify(translationCache)
-);
 
 /* =======================
    DATABASE
