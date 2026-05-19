@@ -5,14 +5,22 @@ import translations from "./translations";
 i18n
   .use(initReactI18next)
   .init({
-    resources: translations,   // 👈 ALL languages
+    resources: translations,   // all languages
     lng: "en",
     fallbackLng: "en",
+
     ns: ["translation"],
     defaultNS: "translation",
-    interpolation: { escapeValue: false },
-    react: { useSuspense: true },
-    initImmediate: false
+
+    interpolation: {
+      escapeValue: false
+    },
+
+    react: {
+      useSuspense: true
+    },
+
+    debug: false
   });
 
 export default i18n;
