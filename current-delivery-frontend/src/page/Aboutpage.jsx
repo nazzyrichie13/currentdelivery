@@ -48,7 +48,7 @@ const Aboutpage = () => {
       <section className="text-center space-y-6">
         <h1 className="text-4xl md:text-5xl font-bold">Delivering Excellence Since 2003</h1>
         <p className="text-gray-700 max-w-2xl mx-auto">
-          At <strong>Current Delivery</strong>, we connect people, businesses, and communities through reliable,
+          At <strong>CrestlineExpress</strong>, we connect people, businesses, and communities through reliable,
           innovative, and sustainable delivery solutions.
         </p>
         <img
@@ -62,7 +62,7 @@ const Aboutpage = () => {
       <section className="space-y-6">
         <h2 className="text-3xl font-semibold text-center">Our Story</h2>
         <p className="text-gray-700 text-center max-w-3xl mx-auto">
-          Founded in 2003, Current Delivery started with a small team and a handful of vehicles. From personally overseeing
+          Founded in 2003, CrestlineExpress started with a small team and a handful of vehicles. From personally overseeing
           every package to introducing real-time tracking systems, we built a reputation for trust, care, and reliability.
         </p>
         <p className="text-gray-700 text-center max-w-3xl mx-auto">
@@ -110,7 +110,7 @@ const Aboutpage = () => {
         <h2 className="text-3xl font-bold mb-4">Partner with Us Today</h2>
         <p className="text-gray-700 mb-6">
           Whether you need urgent documents delivered, large-scale shipments handled, or reliable business logistics,
-          Current Delivery is here for you.
+          CrestlineExpress is here for you.
         </p>
         <a
           href="/contact"

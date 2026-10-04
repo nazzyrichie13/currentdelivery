@@ -41,8 +41,8 @@ return(
             <h2 className="bg-blue-600 w-12 h-12 rounded-full p-2 text-center text-white"><ArrowDown/></h2>
         <Link to="/" className="font-bold underline">Homepage</Link>
         <h3 className="font-bold underline">Contact Us</h3>
-        <p className="hover:text-white">+1 (800) 123-4567/00000325645</p>
-        <p className="hover:text-white">support@currentdelivery.com</p>
+        <p className="hover:text-white">+1 (805) 744-5438/00000325645</p>
+        <p className="hover:text-white">support@CrestlineExpress.com</p>
         <h3 className="font-bold underline">Address</h3>
         <p className="hover:text-white">121 Main Street louisville, KY,USA.</p>
         <Link to="/about" className="font-bold underline">Know About us!!</Link>
@@ -76,7 +76,7 @@ return(
 
     </div>
     <div className="bg-gray-900 text-center font-semibold  md:font-bold text-white" >
-        <p>&copy;{new Date().getFullYear()} currentdelivery International.All rights reserved</p>
+        <p>&copy;{new Date().getFullYear()} CrestlineExpress International.All rights reserved</p>
     </div>
 
     </>

@@ -10,7 +10,7 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("✅ Thank you for contacting Fortress Bank. We'll reply soon.");
+    alert("✅ Thank you for contacting crestline express We'll reply soon.");
     setForm({ name: "", email: "", message: "" });
   };
 
@@ -73,8 +73,8 @@ export default function Contact() {
 
       <div className="mt-10 bg-blue-50 p-6 rounded-xl shadow-sm">
         <h2 className="text-xl font-semibold text-blue-700 mb-3">Other Ways to Reach Us</h2>
-        <p className="text-gray-700 mb-2">📧 Email: support@currentdelivery.com</p>
-        <p className="text-gray-700 mb-2">📞 Phone: +1 (800) 123-4567</p>
+        <p className="text-gray-700 mb-2">📧 Email: support@CrestlineExpress .com</p>
+        <p className="text-gray-700 mb-2">📞 Phone: +1 (805) 744-5438</p>
         <p className="text-gray-700">🏢 Address: 121 Main Street louisville, KY,USA.</p>
       </div>
       <div>

@@ -6,14 +6,14 @@ const faqData = [
     category: 'Getting Started',
     faqs: [
       { question: 'How do I create an account on CurrentDelivery?', answer: 'Download the app from the App Store or Google Play. Click "Sign Up" and provide your email, phone number, and a secure password. Verify your account via email or SMS to start using CurrentDelivery.' },
-      { question: 'Can I use CurrentDelivery without registering?', answer: 'No, creating an account is required to track your orders and manage delivery preferences efficiently.' },
+      { question: 'Can I use Crestline without registering?', answer: 'No, creating an account is required to track your orders and manage delivery preferences efficiently.' },
     ],
   },
   {
     category: 'Placing an Order',
     faqs: [
       { question: 'How do I place an order?', answer: 'Open the app, select the items you want, add them to your cart, choose a delivery time, and complete the payment. A confirmation notification will appear once the order is successfully placed.' },
-      { question: 'What payment methods are accepted?', answer: 'CurrentDelivery accepts credit/debit cards, digital wallets (Apple Pay, Google Pay), and in selected regions, cash on delivery.' },
+      { question: 'What payment methods are accepted?', answer: 'Crestline Express accepts credit/debit cards, digital wallets (Apple Pay, Google Pay), and in selected regions, cash on delivery.' },
     ],
   },
   {
@@ -34,7 +34,7 @@ const faqData = [
     category: 'Support & Contact',
     faqs: [
       { question: 'How can I contact customer support?', answer: 'Reach out via the "Help" section in the app, email support@currentdelivery.com, or call our hotline for urgent inquiries.' },
-      { question: 'Where can I provide feedback about the app?', answer: 'Feedback can be submitted through the "Feedback" form in app settings. Your suggestions help us improve CurrentDelivery.' },
+      { question: 'Where can I provide feedback about the app?', answer: 'Feedback can be submitted through the "Feedback" form in app settings. Your suggestions help us improve Crestline Express.' },
     ],
   },
 ];
