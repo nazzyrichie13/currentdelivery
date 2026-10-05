@@ -6,9 +6,9 @@ import ChatBox from "../component/ChatBox";
 import chatBg from '../assets/road.jpg';
 import TrackShipment from "./TrackShipment";
 import image1 from "../assets/logistic.jpg";
-import shipdelivery from "../assets/shipppp.png";
-import planedelivery from "../assets/planedelivery.png";
-import alldelivery from "../assets/vehiclecurrent.png";
+import shipdelivery from "../assets/file_00000000658c81f4b6628c46bc6d1726.png";
+import planedelivery from "../assets/file_000000000c048210a5e36c189c6afda4.png";
+import alldelivery from "../assets/file_00000000293c824399ce12bed8e421a1.png";
 import driver from "../assets/driver.jpg";
 import photo3 from '../assets/photo3.jpg';
 

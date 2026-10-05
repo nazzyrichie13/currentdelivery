@@ -2,8 +2,8 @@
 
 // Example images (replace with your own)
 import containerShip from "../assets/istockphoto-1340887693-612x612.jpg";
-import port from "../assets/ship.jpg";
-import cargoLoading from "../assets/shipppp.png";
+import port from "../assets/file_00000000658c81f4b6628c46bc6d1726.png";
+import cargoLoading from "../assets/ship.jpg";
 
 export default function Seafreight() {
   return (
