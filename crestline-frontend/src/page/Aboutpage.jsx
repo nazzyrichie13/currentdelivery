@@ -1,5 +1,5 @@
 // AboutPage.jsx
-import  Image1  from '../assets/—Pngtree—illustration of a vector icon_12646880.jpg';
+import  Image1  from '../assets/illustreation.jpg';
 
 const milestones = [
   {
