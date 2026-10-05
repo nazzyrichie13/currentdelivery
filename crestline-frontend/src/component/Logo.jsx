@@ -1,5 +1,5 @@
 // CurrentDeliveryLogo.jsx
-import mylogo from '../assets/current-delivery-frontend/src/assets/file_00000000db8881f4a74e61694fc2ef34.png'
+import mylogo from "../assets/file_00000000db8881f4a74e61694fc2ef34.png";
 export default function Logo() {
   return (
     <>
